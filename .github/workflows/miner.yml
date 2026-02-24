@@ -2,8 +2,8 @@ name: Reddit Need Miner
 
 on:
   schedule:
-    # 每 4 小时运行一次
-    - cron: '0 */4 * * *'
+    # 每 12 小时运行一次
+    - cron: '0 */12 * * *'
   workflow_dispatch:
 
 jobs:
