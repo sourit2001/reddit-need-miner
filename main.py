@@ -128,7 +128,7 @@ def main():
             resp = requests.get(source_info['url'], headers=headers, timeout=20)
             feed = feedparser.parse(resp.content)
             
-            for entry in feed.entries[:5]: # 每次看最新的 5 个
+            for entry in feed.entries[:20]: # 每次看最新的 20 个
                 post_id = get_post_id(entry)
                 if post_id not in sent_posts:
                     raw_content = entry.summary if 'summary' in entry else entry.description if 'description' in entry else ""
