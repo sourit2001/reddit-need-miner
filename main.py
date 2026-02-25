@@ -144,11 +144,27 @@ def main():
             for entry in feed.entries[:5]: # 每次看最新的 5 个
                 post_id = get_post_id(entry)
                 if post_id not in sent_posts:
+                    # 获取该帖子的评论 RSS
+                    # Reddit 帖子 RSS 链接通常是：[原贴链接].rss
+                    post_rss_url = entry.link.split('?')[0].rstrip('/') + ".rss"
+                    comments_text = ""
+                    try:
+                        post_resp = requests.get(post_rss_url, headers=headers, timeout=15)
+                        post_feed = feedparser.parse(post_resp.content)
+                        # 跳过第一个 entry (那是主贴自己)，取后面 10 条作为评论
+                        for comment_entry in post_feed.entries[1:11]:
+                            c_body = clean_html(comment_entry.summary if 'summary' in comment_entry else "")
+                            if c_body:
+                                comments_text += f"\n- {c_body[:500]}" # 每条评论限制长度
+                    except Exception as ce:
+                        print(f"抓取评论出错: {ce}")
+
                     raw_content = entry.summary if 'summary' in entry else entry.description if 'description' in entry else ""
-                    print(f"分析中: {entry.title}")
+                    full_text_for_ai = f"Title: {entry.title}\nContent: {raw_content}\nComments: {comments_text}"
                     
-                    analysis_data = analyze_needs(raw_content)
-                    translation, analysis = analysis_data
+                    print(f"分析中 (含评论): {entry.title}")
+                    
+                    translation, analysis = analyze_needs(full_text_for_ai)
                     
                     send_to_feishu(entry.title, entry.link, source_info['name'], translation, analysis)
                     send_to_bitable(entry.title, entry.link, source_info['name'], translation, analysis)
