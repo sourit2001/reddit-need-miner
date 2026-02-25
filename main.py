@@ -47,8 +47,8 @@ def clean_html(raw_html):
 
 def analyze_needs(text):
     text = clean_html(text)
-    if not text: return "无内容", "无内容"
-    if not AI_API_KEY: return "未配置 AI 接口", "未配置 AI 接口"
+    if not text: return "无内容", "无内容", "无内容"
+    if not AI_API_KEY: return "未配置 AI 接口", "未配置 AI 接口", "未配置 AI 接口"
 
     url = "https://api.deepseek.com/chat/completions"
     headers = {
@@ -58,7 +58,7 @@ def analyze_needs(text):
     payload = {
         "model": "deepseek-chat",
         "messages": [
-            {"role": "system", "content": "你是一个资深产品经理和需求分析专家。请执行以下任务：\n1. 将输入的 Reddit 帖子内容翻译成地道的中文。\n2. 分析帖子，提取核心痛点 (Pain Point)、对现有工具的不满 (Frustration) 以及潜在产品机会 (Opportunity)。\n\n请按以下格式严格输出：\n[翻译]\n(翻译内容)\n[分析]\n(分析内容)"},
+            {"role": "system", "content": "你是一个资深产品经理和需求分析专家。请执行以下任务：\n1. 将输入的 Reddit 帖子主贴内容翻译成地道的中文。\n2. 从评论区提取出最有价值的 3-5 条观点，翻译成中文。\n3. 分析帖子，提取核心痛点 (Pain Point)、对现有工具的不满 (Frustration) 以及潜在产品机会 (Opportunity)。\n\n请按以下格式严格输出：\n[翻译]\n(主贴翻译内容)\n[精选评论]\n(评论总结内容)\n[分析]\n(分析内容)"},
             {"role": "user", "content": text[:4000]}
         ],
         "temperature": 0.5
@@ -68,20 +68,24 @@ def analyze_needs(text):
         content = resp.json()['choices'][0]['message']['content'].strip()
         
         translation = ""
+        comments_summary = ""
         analysis = ""
-        if "[分析]" in content:
-            parts = content.split("[分析]")
-            analysis = parts[1].strip()
-            translation = parts[0].replace("[翻译]", "").strip()
+        
+        if "[精选评论]" in content and "[分析]" in content:
+            parts_1 = content.split("[精选评论]")
+            translation = parts_1[0].replace("[翻译]", "").strip()
+            parts_2 = parts_1[1].split("[分析]")
+            comments_summary = parts_2[0].strip()
+            analysis = parts_2[1].strip()
         else:
             analysis = content
             
-        return translation, analysis
+        return translation, comments_summary, analysis
     except Exception as e:
         print(f"AI 分析出错: {e}")
-        return "翻译失败", "分析失败"
+        return "翻译失败", "提取失败", "分析失败"
 
-def send_to_feishu(title, link, source, translation, analysis):
+def send_to_feishu(title, link, source, translation, comments_summary, analysis):
     content = {
         "msg_type": "post",
         "content": {
@@ -91,6 +95,7 @@ def send_to_feishu(title, link, source, translation, analysis):
                     "content": [
                         [{"tag": "text", "text": f"📍 帖子标题：{title}\n\n"}],
                         [{"tag": "text", "text": "📝 原文翻译：\n"}, {"tag": "text", "text": f"{translation}\n\n"}],
+                        [{"tag": "text", "text": "💬 精选评论：\n"}, {"tag": "text", "text": f"{comments_summary}\n\n"}],
                         [{"tag": "text", "text": "🔍 需求分析：\n"}, {"tag": "text", "text": f"{analysis}\n\n"}],
                         [{"tag": "a", "text": "👉 点击查看原帖链接", "href": link}]
                     ]
@@ -108,7 +113,7 @@ def get_tenant_access_token():
         return resp.json().get("tenant_access_token")
     except: return None
 
-def send_to_bitable(title, link, source, translation, analysis):
+def send_to_bitable(title, link, source, translation, comments_summary, analysis):
     if not (FEISHU_APP_ID and BITABLE_APP_TOKEN): return
     token = get_tenant_access_token()
     if not token: return
@@ -120,6 +125,7 @@ def send_to_bitable(title, link, source, translation, analysis):
         "链接": {"link": link, "text": "原帖"},
         "来源": source,
         "原文翻译": translation,
+        "精选评论": comments_summary,
         "需求分析": analysis,
         "捕获时间": int(datetime.now().timestamp() * 1000)
     }
@@ -164,10 +170,11 @@ def main():
                     
                     print(f"分析中 (含评论): {entry.title}")
                     
-                    translation, analysis = analyze_needs(full_text_for_ai)
+                    analysis_data = analyze_needs(full_text_for_ai)
+                    translation, comments_summary, analysis = analysis_data
                     
-                    send_to_feishu(entry.title, entry.link, source_info['name'], translation, analysis)
-                    send_to_bitable(entry.title, entry.link, source_info['name'], translation, analysis)
+                    send_to_feishu(entry.title, entry.link, source_info['name'], translation, comments_summary, analysis)
+                    send_to_bitable(entry.title, entry.link, source_info['name'], translation, comments_summary, analysis)
                     
                     new_sent_list.append(post_id)
         except Exception as e:
