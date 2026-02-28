@@ -45,7 +45,8 @@ def generate_report(records):
         title = fields.get("标题", "无标题")
         analysis = fields.get("需求分析", "无分析")
         score = fields.get("潜力评分", 0)
-        summary_input += f"{idx+1}. [{score}分] {title}: {analysis[:200]}...\n\n"
+        # 增加编号和标题的对应关系，让 AI 更好引用
+        summary_input += f"ID: {idx+1} | 标题: {title} | 评分: {score}分 | 内容摘要: {analysis[:300]}\n\n"
 
     url = "https://api.deepseek.com/chat/completions"
     headers = {
@@ -55,7 +56,7 @@ def generate_report(records):
     payload = {
         "model": "deepseek-chat",
         "messages": [
-            {"role": "system", "content": "你是一个商业分析师。请阅读以下从 Reddit 抓取的一批需求分析结果，执行以下任务：\n1. 总结这批内容中反映出的 3 个最核心的行业趋势。\n2. 识别出是否有多个帖子指向同一个痛点（交叉验证机会）。\n3. 从中精选出 2-3 个最具商业化价值（赚钱潜力高、技术可行性强）的开发机会，并给出具体建议。"},
+            {"role": "system", "content": "你是一个商业分析师。请阅读以下 Reddit 需求记录：\n1. 总结 3 个核心行业趋势。\n2. 识别交叉验证的痛点（多个帖子提到同一个问题）。\n3. 精选 2-3 个最具价值的机会。\n\n**重要规则**：在引用具体帖子时，请务必使用 'ID [帖子标题]' 的格式（例如：#1 [AI Video Bot]），以便用户在表格中快速查找。"},
             {"role": "user", "content": f"以下是最近的抓取记录：\n{summary_input}"}
         ],
         "temperature": 0.3
