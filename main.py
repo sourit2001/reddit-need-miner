@@ -47,8 +47,8 @@ def clean_html(raw_html):
 
 def analyze_needs(text):
     text = clean_html(text)
-    if not text: return "无内容", "无内容", "无内容"
-    if not AI_API_KEY: return "未配置 AI 接口", "未配置 AI 接口", "未配置 AI 接口"
+    if not text: return "无内容", "无内容", "无内容", 0, "其他"
+    if not AI_API_KEY: return "未配置 AI 接口", "未配置 AI 接口", "未配置 AI 接口", 0, "其他"
 
     url = "https://api.deepseek.com/chat/completions"
     headers = {
@@ -58,7 +58,7 @@ def analyze_needs(text):
     payload = {
         "model": "deepseek-chat",
         "messages": [
-            {"role": "system", "content": "你是一个资深产品经理和需求分析专家。请执行以下任务：\n1. 将输入的 Reddit 帖子主贴内容翻译成地道的中文。\n2. 从评论区提取出最有价值的 3-5 条观点，翻译成中文。\n3. 分析帖子，提取核心痛点 (Pain Point)、对现有工具的不满 (Frustration) 以及潜在产品机会 (Opportunity)。\n\n请按以下格式严格输出：\n[翻译]\n(主贴翻译内容)\n[精选评论]\n(评论总结内容)\n[分析]\n(分析内容)"},
+            {"role": "system", "content": "你是一个资深产品经理和需求分析专家。请执行以下任务：\n1. 将输入的 Reddit 帖子翻译成地道的中文。\n2. 从评论区提取出最有价值的 3-5 条观点。\n3. 分析核心痛点 (Pain Point)、不满 (Frustration) 和潜在机会 (Opportunity)。\n4. 给该需求打分 (1-10分)，衡量商业潜力和开发可行性。\n5. 给需求归类 (如：SaaS, 开发者工具, 内容创作, 电商, 效率工具等)。\n\n请按以下格式严格输出：\n[翻译]\n(内容)\n[精选评论]\n(内容)\n[分析]\n(分析内容)\n[评分]\n(仅数字)\n[分类]\n(仅类别名)"},
             {"role": "user", "content": text[:4000]}
         ],
         "temperature": 0.5
@@ -67,31 +67,39 @@ def analyze_needs(text):
         resp = requests.post(url, json=payload, headers=headers, timeout=30)
         content = resp.json()['choices'][0]['message']['content'].strip()
         
-        translation = ""
-        comments_summary = ""
-        analysis = ""
+        translation, comments_summary, analysis = "翻译失败", "提取失败", "分析失败"
+        score = 0
+        category = "其他"
         
-        if "[精选评论]" in content and "[分析]" in content:
-            parts_1 = content.split("[精选评论]")
-            translation = parts_1[0].replace("[翻译]", "").strip()
-            parts_2 = parts_1[1].split("[分析]")
-            comments_summary = parts_2[0].strip()
-            analysis = parts_2[1].strip()
-        else:
-            analysis = content
+        # 增强解析逻辑
+        def extract(p, s):
+            import re
+            match = re.search(f"\\{p}\\](.*?)(?=\\[|$)", s, re.DOTALL)
+            return match.group(1).strip() if match else ""
+
+        translation = extract("[翻译]", content)
+        comments_summary = extract("[精选评论]", content)
+        analysis = extract("[分析]", content)
+        score_str = extract("[评分]", content)
+        category = extract("[分类]", content)
+        
+        try:
+            score = int(re.search(r'\d+', score_str).group()) if score_str else 0
+        except:
+            score = 0
             
-        return translation, comments_summary, analysis
+        return translation, comments_summary, analysis, score, category
     except Exception as e:
         print(f"AI 分析出错: {e}")
-        return "翻译失败", "提取失败", "分析失败"
+        return "翻译失败", "提取失败", "分析失败", 0, "其他"
 
-def send_to_feishu(title, link, source, translation, comments_summary, analysis):
+def send_to_feishu(title, link, source, translation, comments_summary, analysis, score, category):
     content = {
         "msg_type": "post",
         "content": {
             "post": {
                 "zh_cn": {
-                    "title": f"💡 发现新需求 - {source}",
+                    "title": f"💡 [{score}分|{category}] 发现新需求 - {source}",
                     "content": [
                         [{"tag": "text", "text": f"📍 帖子标题：{title}\n\n"}],
                         [{"tag": "text", "text": "📝 原文翻译：\n"}, {"tag": "text", "text": f"{translation}\n\n"}],
@@ -113,7 +121,7 @@ def get_tenant_access_token():
         return resp.json().get("tenant_access_token")
     except: return None
 
-def send_to_bitable(title, link, source, translation, comments_summary, analysis):
+def send_to_bitable(title, link, source, translation, comments_summary, analysis, score, category):
     if not (FEISHU_APP_ID and BITABLE_APP_TOKEN): return
     token = get_tenant_access_token()
     if not token: return
@@ -127,6 +135,8 @@ def send_to_bitable(title, link, source, translation, comments_summary, analysis
         "原文翻译": translation,
         "精选评论": comments_summary,
         "需求分析": analysis,
+        "潜力评分": score,
+        "分类": category,
         "捕获时间": int(datetime.now().timestamp() * 1000)
     }
     requests.post(url, json={"fields": fields}, headers=headers)
@@ -171,10 +181,10 @@ def main():
                     print(f"分析中 (含评论): {entry.title}")
                     
                     analysis_data = analyze_needs(full_text_for_ai)
-                    translation, comments_summary, analysis = analysis_data
+                    translation, comments_summary, analysis, score, category = analysis_data
                     
-                    send_to_feishu(entry.title, entry.link, source_info['name'], translation, comments_summary, analysis)
-                    send_to_bitable(entry.title, entry.link, source_info['name'], translation, comments_summary, analysis)
+                    send_to_feishu(entry.title, entry.link, source_info['name'], translation, comments_summary, analysis, score, category)
+                    send_to_bitable(entry.title, entry.link, source_info['name'], translation, comments_summary, analysis, score, category)
                     
                     new_sent_list.append(post_id)
         except Exception as e:
