@@ -45,9 +45,12 @@ def clean_html(raw_html):
     cleaner = re.compile('<.*?>')
     return re.sub(cleaner, '', raw_html).strip()
 
-def analyze_needs(text):
+def analyze_needs(text, title):
     text = clean_html(text)
-    if not text: return "无内容", "无内容", "无内容", 0, "其他"
+    # 如果正文真的很短，至少要把标题传给 AI 做评估
+    if len(text) < 10:
+        text = f"Title: {title}\n(Note: No long content available for this post. Please analyze based on title and any comments.)"
+    
     if not AI_API_KEY: return "未配置 AI 接口", "未配置 AI 接口", "未配置 AI 接口", 0, "其他"
 
     url = "https://api.deepseek.com/chat/completions"
@@ -58,18 +61,17 @@ def analyze_needs(text):
     payload = {
         "model": "deepseek-chat",
         "messages": [
-            {"role": "system", "content": "你是一个资深产品经理和需求分析专家。请执行以下任务：\n1. 将输入的 Reddit 帖子翻译成地道的中文。\n2. 从评论区提取出最有价值的 3-5 条观点。\n3. 分析核心痛点 (Pain Point)、不满 (Frustration) 和潜在机会 (Opportunity)。\n4. 给该需求打分 (1-10分)，衡量商业潜力和开发可行性。\n5. 给需求归类 (如：SaaS, 开发者工具, 内容创作, 电商, 效率工具等)。\n\n请按以下格式严格输出：\n[翻译]\n(内容)\n[精选评论]\n(内容)\n[分析]\n(分析内容)\n[评分]\n(仅数字)\n[分类]\n(仅类别名)"},
+            {"role": "system", "content": "你是一个资深产品经理和需求分析专家。即便输入内容较少，也请尽力根据标题和上下文进行推测。请按以下格式输出：\n[翻译]\n(内容)\n[精选评论]\n(内容)\n[分析]\n(分析内容)\n[评分]\n(1-10数字)\n[分类]\n(类别名)"},
             {"role": "user", "content": text[:4000]}
         ],
         "temperature": 0.5
     }
     
-    # 增加重试机制 (最多尝试 2 次)
     for attempt in range(2):
         try:
-            # 超时时间增加到 60 秒
             resp = requests.post(url, json=payload, headers=headers, timeout=60)
             content = resp.json()['choices'][0]['message']['content'].strip()
+            print(f"--- AI Response for '{title[:30]}' ---\n{content[:200]}...") # 调试输出
             
             translation, comments_summary, analysis = "翻译失败", "提取失败", "分析失败"
             score = 0
@@ -93,11 +95,11 @@ def analyze_needs(text):
                 
             return translation, comments_summary, analysis, score, category
         except Exception as e:
-            print(f"第 {attempt+1} 次 AI 分析出错: {e}")
-            if attempt == 1: # 最后一次尝试也失败了
-                return "翻译超时", "提取超时", f"分析失败（API连续报错）: {e}", 0, "其他"
+            print(f"尝试 {attempt+1} 失败: {e}")
+            if attempt == 1:
+                return "翻译超时", "提取超时", f"API 出错: {e}", 0, "其他"
     
-    return "翻译失败", "提取失败", "分析失败", 0, "其他"
+    return "解析失败", "解析失败", "解析失败", 0, "其他"
 
 def send_to_feishu(title, link, source, translation, comments_summary, analysis, score, category):
     content = {
@@ -105,13 +107,13 @@ def send_to_feishu(title, link, source, translation, comments_summary, analysis,
         "content": {
             "post": {
                 "zh_cn": {
-                    "title": f"💡 [{score}分|{category}] 发现新需求 - {source}",
+                    "title": f"💡 [{score}分|{category}] 发现需求: {source}",
                     "content": [
-                        [{"tag": "text", "text": f"📍 帖子标题：{title}\n\n"}],
-                        [{"tag": "text", "text": "📝 原文翻译：\n"}, {"tag": "text", "text": f"{translation}\n\n"}],
-                        [{"tag": "text", "text": "💬 精选评论：\n"}, {"tag": "text", "text": f"{comments_summary}\n\n"}],
-                        [{"tag": "text", "text": "🔍 需求分析：\n"}, {"tag": "text", "text": f"{analysis}\n\n"}],
-                        [{"tag": "a", "text": "👉 点击查看原帖链接", "href": link}]
+                        [{"tag": "text", "text": f"📍 标题：{title}\n\n"}],
+                        [{"tag": "text", "text": "📝 翻译：\n"}, {"tag": "text", "text": f"{translation}\n\n"}],
+                        [{"tag": "text", "text": "💬 评论：\n"}, {"tag": "text", "text": f"{comments_summary}\n\n"}],
+                        [{"tag": "text", "text": "🔍 分析：\n"}, {"tag": "text", "text": f"{analysis}\n\n"}],
+                        [{"tag": "a", "text": "👉 原贴链接", "href": link}]
                     ]
                 }
             }
@@ -165,31 +167,37 @@ def main():
                 post_id = get_post_id(entry)
                 if post_id not in sent_posts:
                     post_rss_url = entry.link.split('?')[0].rstrip('/') + ".rss"
+                    
+                    # 关键修复：从帖子的独立 RSS 中抓取更详尽的数据
+                    full_content = ""
                     comments_text = ""
                     try:
                         post_resp = requests.get(post_rss_url, headers=headers, timeout=15)
                         post_feed = feedparser.parse(post_resp.content)
-                        for comment_entry in post_feed.entries[1:11]:
-                            c_body = clean_html(comment_entry.summary if 'summary' in comment_entry else "")
-                            if c_body:
-                                comments_text += f"\n- {c_body[:500]}"
+                        
+                        if post_feed.entries:
+                            # 第一个 entry 是帖子主贴，通常比主 feed 更全
+                            main_post_entry = post_feed.entries[0]
+                            full_content = clean_html(main_post_entry.summary if 'summary' in main_post_entry else main_post_entry.content[0].value if 'content' in main_post_entry else "")
+                            
+                            # 剩下的 entries 是评论
+                            for comment_entry in post_feed.entries[1:11]:
+                                c_body = clean_html(comment_entry.summary if 'summary' in comment_entry else "")
+                                if c_body:
+                                    comments_text += f"\n- {c_body[:500]}"
                     except Exception as ce:
-                        print(f"抓取评论出错: {ce}")
+                        print(f"深度抓取失败: {ce}")
 
-                    # 增强内容抓取：尝试更多可能的字段
-                    raw_content = ""
-                    if 'content' in entry:
-                        raw_content = entry.content[0].value
-                    elif 'summary' in entry:
-                        raw_content = entry.summary
-                    elif 'description' in entry:
-                        raw_content = entry.description
+                    # 如果深度抓取都拿不到，最后再尝试主 feed 的备用字段
+                    if not full_content:
+                        if 'content' in entry: full_content = clean_html(entry.content[0].value)
+                        elif 'summary' in entry: full_content = clean_html(entry.summary)
+
+                    full_text_for_ai = f"Title: {entry.title}\nContent: {full_content}\nComments: {comments_text}"
                     
-                    full_text_for_ai = f"Title: {entry.title}\nContent: {raw_content}\nComments: {comments_text}"
+                    print(f"分析中: {entry.title} (内容长度: {len(full_content)})")
                     
-                    print(f"分析中 (含评论): {entry.title} (内容长度: {len(raw_content)})")
-                    
-                    analysis_data = analyze_needs(full_text_for_ai)
+                    analysis_data = analyze_needs(full_text_for_ai, entry.title)
                     translation, comments_summary, analysis, score, category = analysis_data
                     
                     send_to_feishu(entry.title, entry.link, source_info['name'], translation, comments_summary, analysis, score, category)
