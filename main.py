@@ -54,10 +54,26 @@ def analyze_needs(text, title):
     payload = {
         "model": "deepseek-chat",
         "messages": [
-            {"role": "system", "content": "你是一个资深产品经理。请分析 Reddit 帖子。必须按此格式：\n[翻译]\n内容\n[精选评论]\n内容\n[分析]\n内容\n[评分]\n数字\n[分类]\n类别"},
+            {
+                "role": "system", 
+                "content": (
+                    "你是一个资深投资人和产品经理。请分析 Reddit 帖子并打分（0-100分）。\n"
+                    "打分标准（总分=A*0.4+B*0.3+C*0.3）：\n"
+                    "A. 痛点强度：用户是否有强烈的付费解决意愿？\n"
+                    "B. 竞争环境：是否已有大量免费替代品？（越少分越高）\n"
+                    "C. 开发难度：是否适合独立开发者快速启动？（越易分越高）\n\n"
+                    "请严格按此格式输出：\n"
+                    "[翻译]\n内容\n"
+                    "[精选评论]\n内容\n"
+                    "[分析]\n内容\n"
+                    "[评分]\n数字 (请拉开差距，拒绝平庸的85分)\n"
+                    "[打分理由]\n一句话解释得分点\n"
+                    "[分类]\n类别"
+                )
+            },
             {"role": "user", "content": text[:4000]}
         ],
-        "temperature": 0.3
+        "temperature": 0.4
     }
     
     for attempt in range(2):
@@ -77,6 +93,7 @@ def analyze_needs(text, title):
             ans = quick_extract("分析", full_content)
             score_s = quick_extract("评分", full_content)
             cat = quick_extract("分类", full_content)
+            reason = quick_extract("打分理由", full_content)
 
             # 强力兜底：如果解析不出任何东西
             if not trans and len(full_content) > 20:
@@ -86,25 +103,26 @@ def analyze_needs(text, title):
             try: score = int(re.search(r'\d+', score_s).group())
             except: score = 0
             
-            return trans or "无内容", comm or "无内容", ans or "解析失败", score, cat or "其他"
+            return trans or "无内容", comm or "无内容", ans or "解析失败", score, cat or "其他", reason or "无理由"
         except Exception as e:
             print(f"AI Attempt {attempt} Error: {e}")
-    return "超时", "超时", "API调用失败", 0, "其他"
+    return "超时", "超时", "API调用失败", 0, "其他", "API错误"
 
-def send_to_feishu(title, link, source, translation, comments_summary, analysis, score, category):
+def send_to_feishu(title, link, source, translation, comments_summary, analysis, score, category, reason):
     # 注意：这里的标签和之前不同，用于确认代码是否更新成功
     content = {
         "msg_type": "post",
         "content": {
             "post": {
                 "zh_cn": {
-                    "title": f"� [{score}分|{category}] {source}",
+                    "title": f"🚀 [{score}分|{category}] {source}",
                     "content": [
-                        [{"tag": "text", "text": f"项目: {title}\n\n"}],
+                        [{"tag": "text", "text": f"项目: {title}\n"}],
+                        [{"tag": "text", "text": f"理由: {reason}\n\n"}],
                         [{"tag": "text", "text": "【译】\n"}, {"tag": "text", "text": f"{translation}\n\n"}],
                         [{"tag": "text", "text": "【评】\n"}, {"tag": "text", "text": f"{comments_summary}\n\n"}],
                         [{"tag": "text", "text": "【析】\n"}, {"tag": "text", "text": f"{analysis}\n\n"}],
-                        [{"tag": "a", "text": "� 原贴链接", "href": link}]
+                        [{"tag": "a", "text": "🔗 原贴链接", "href": link}]
                     ]
                 }
             }
@@ -120,7 +138,7 @@ def get_tenant_access_token():
         return resp.json().get("tenant_access_token")
     except: return None
 
-def send_to_bitable(title, link, source, translation, comments_summary, analysis, score, category):
+def send_to_bitable(title, link, source, translation, comments_summary, analysis, score, category, reason):
     if not (FEISHU_APP_ID and BITABLE_APP_TOKEN): return
     token = get_tenant_access_token()
     if not token: return
@@ -129,7 +147,7 @@ def send_to_bitable(title, link, source, translation, comments_summary, analysis
     fields = {
         "标题": title, "链接": {"link": link, "text": "原帖"}, "来源": source,
         "原文翻译": translation, "精选评论": comments_summary, "需求分析": analysis,
-        "潜力评分": score, "分类": category, "捕获时间": int(datetime.now().timestamp() * 1000)
+        "潜力评分": score, "分类": category, "打分理由": reason, "捕获时间": int(datetime.now().timestamp() * 1000)
     }
     requests.post(url, json={"fields": fields}, headers=headers)
 
@@ -163,10 +181,10 @@ def main():
                         full_content = clean_html(entry.summary if 'summary' in entry else entry.description if 'description' in entry else "")
 
                     print(f"Analyzing: {entry.title} (Len: {len(full_content)})")
-                    trans, comm, ans, score, cat = analyze_needs(f"Title: {entry.title}\n{full_content}\nComments: {comments}", entry.title)
+                    trans, comm, ans, score, cat, rs = analyze_needs(f"Title: {entry.title}\n{full_content}\nComments: {comments}", entry.title)
                     
-                    send_to_feishu(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat)
-                    send_to_bitable(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat)
+                    send_to_feishu(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
+                    send_to_bitable(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
                     new_sent_list.append(post_id)
         except Exception as e: print(f"Error: {e}")
     save_sent_posts(new_sent_list)
