@@ -47,9 +47,8 @@ def clean_html(raw_html):
 
 def analyze_needs(text, title):
     text = clean_html(text)
-    # 如果正文真的很短，至少要把标题传给 AI 做评估
     if len(text) < 10:
-        text = f"Title: {title}\n(Note: No long content available for this post. Please analyze based on title and any comments.)"
+        text = f"Title: {title}\n(No detailed content available for this post.)"
     
     if not AI_API_KEY: return "未配置 AI 接口", "未配置 AI 接口", "未配置 AI 接口", 0, "其他"
 
@@ -61,43 +60,62 @@ def analyze_needs(text, title):
     payload = {
         "model": "deepseek-chat",
         "messages": [
-            {"role": "system", "content": "你是一个资深产品经理和需求分析专家。即便输入内容较少，也请尽力根据标题和上下文进行推测。请按以下格式输出：\n[翻译]\n(内容)\n[精选评论]\n(内容)\n[分析]\n(分析内容)\n[评分]\n(1-10数字)\n[分类]\n(类别名)"},
+            {"role": "system", "content": "你是一个资深产品经理。请分析输入的 Reddit 帖子（即便只有标题）。\n请严格按以下标签包裹内容：\n[翻译]\n(主贴及标题翻译)\n[精选评论]\n(评论总结)\n[分析]\n(需求分析)\n[评分]\n(1-10数字)\n[分类]\n(类别名)"},
             {"role": "user", "content": text[:4000]}
         ],
-        "temperature": 0.5
+        "temperature": 0.4
     }
     
     for attempt in range(2):
         try:
             resp = requests.post(url, json=payload, headers=headers, timeout=60)
             content = resp.json()['choices'][0]['message']['content'].strip()
-            print(f"--- AI Response for '{title[:30]}' ---\n{content[:200]}...") # 调试输出
+            print(f"--- AI Result Reference ---\n{content[:300]}...") 
             
-            translation, comments_summary, analysis = "翻译失败", "提取失败", "分析失败"
-            score = 0
-            category = "其他"
-            
-            def extract(p, s):
+            # --- 改进后的解析逻辑 ---
+            def get_section(tag, s):
                 import re
-                match = re.search(f"\\{p}\\](.*?)(?=\\[|$)", s, re.DOTALL)
-                return match.group(1).strip() if match else ""
+                # 匹配 [标签] 或 【标签】 后面的内容，直到下一个 [ 或结束
+                pattern = rf"\[{tag}\](.*?)(?=\[|$)"
+                match = re.search(pattern, s, re.DOTALL | re.IGNORECASE)
+                if match:
+                    return match.group(1).strip()
+                # 备选：如果 AI 没加中括号
+                pattern_alt = rf"{tag}:?(.*?)(?=\n[A-Z]|$)"
+                match_alt = re.search(pattern_alt, s, re.DOTALL | re.IGNORECASE)
+                return match_alt.group(1).strip() if match_alt else ""
 
-            translation = extract("[翻译]", content)
-            comments_summary = extract("[精选评论]", content)
-            analysis = extract("[分析]", content)
-            score_str = extract("[评分]", content)
-            category = extract("[分类]", content)
+            translation = get_section("翻译", content)
+            comments_summary = get_section("精选评论", content)
+            analysis = get_section("分析", content)
+            score_str = get_section("评分", content)
+            category = get_section("分类", content)
             
+            # 如果正则全挂了，尝试暴力分割
+            if not translation and "[翻译]" in content:
+                parts = content.split("[")
+                for p in parts:
+                    if p.startswith("翻译]"): translation = p.replace("翻译]", "").strip()
+                    if p.startswith("精选评论]"): comments_summary = p.replace("精选评论]", "").strip()
+                    if p.startswith("分析]"): analysis = p.replace("分析]", "").strip()
+                    if p.startswith("评分]"): score_str = p.replace("评分]", "").strip()
+                    if p.startswith("分类]"): category = p.replace("分类]", "").strip()
+
             try:
                 score = int(re.search(r'\d+', score_str).group()) if score_str else 0
             except:
                 score = 0
                 
-            return translation, comments_summary, analysis, score, category
+            # 兜底：如果 AI 还是没按格式回，但返回了内容
+            if not translation and len(content) > 50:
+                translation = "（格式解析失败，请查看分析）"
+                analysis = content
+                
+            return translation or "无内容", comments_summary or "无内容", analysis or content, score, category or "其他"
         except Exception as e:
             print(f"尝试 {attempt+1} 失败: {e}")
             if attempt == 1:
-                return "翻译超时", "提取超时", f"API 出错: {e}", 0, "其他"
+                return "翻译出错", "提取出错", f"API 出错: {e}", 0, "其他"
     
     return "解析失败", "解析失败", "解析失败", 0, "其他"
 
