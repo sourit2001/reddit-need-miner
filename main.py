@@ -63,35 +63,41 @@ def analyze_needs(text):
         ],
         "temperature": 0.5
     }
-    try:
-        resp = requests.post(url, json=payload, headers=headers, timeout=30)
-        content = resp.json()['choices'][0]['message']['content'].strip()
-        
-        translation, comments_summary, analysis = "翻译失败", "提取失败", "分析失败"
-        score = 0
-        category = "其他"
-        
-        # 增强解析逻辑
-        def extract(p, s):
-            import re
-            match = re.search(f"\\{p}\\](.*?)(?=\\[|$)", s, re.DOTALL)
-            return match.group(1).strip() if match else ""
-
-        translation = extract("[翻译]", content)
-        comments_summary = extract("[精选评论]", content)
-        analysis = extract("[分析]", content)
-        score_str = extract("[评分]", content)
-        category = extract("[分类]", content)
-        
+    
+    # 增加重试机制 (最多尝试 2 次)
+    for attempt in range(2):
         try:
-            score = int(re.search(r'\d+', score_str).group()) if score_str else 0
-        except:
-            score = 0
+            # 超时时间增加到 60 秒
+            resp = requests.post(url, json=payload, headers=headers, timeout=60)
+            content = resp.json()['choices'][0]['message']['content'].strip()
             
-        return translation, comments_summary, analysis, score, category
-    except Exception as e:
-        print(f"AI 分析出错: {e}")
-        return "翻译失败", "提取失败", "分析失败", 0, "其他"
+            translation, comments_summary, analysis = "翻译失败", "提取失败", "分析失败"
+            score = 0
+            category = "其他"
+            
+            def extract(p, s):
+                import re
+                match = re.search(f"\\{p}\\](.*?)(?=\\[|$)", s, re.DOTALL)
+                return match.group(1).strip() if match else ""
+
+            translation = extract("[翻译]", content)
+            comments_summary = extract("[精选评论]", content)
+            analysis = extract("[分析]", content)
+            score_str = extract("[评分]", content)
+            category = extract("[分类]", content)
+            
+            try:
+                score = int(re.search(r'\d+', score_str).group()) if score_str else 0
+            except:
+                score = 0
+                
+            return translation, comments_summary, analysis, score, category
+        except Exception as e:
+            print(f"第 {attempt+1} 次 AI 分析出错: {e}")
+            if attempt == 1: # 最后一次尝试也失败了
+                return "翻译超时", "提取超时", f"分析失败（API连续报错）: {e}", 0, "其他"
+    
+    return "翻译失败", "提取失败", "分析失败", 0, "其他"
 
 def send_to_feishu(title, link, source, translation, comments_summary, analysis, score, category):
     content = {
@@ -147,38 +153,41 @@ def main():
     sent_posts = load_sent_posts()
     new_sent_list = list(sent_posts)
     
-    # 模拟浏览器 User-Agent，防止 Reddit 屏蔽
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'}
 
     for source_info in NEED_SOURCES:
         print(f"正在扫描: {source_info['name']}...")
         try:
-            # 使用 requests 先抓取，再交给 feedparser 处理，方便设置 Headers
             resp = requests.get(source_info['url'], headers=headers, timeout=20)
             feed = feedparser.parse(resp.content)
             
-            for entry in feed.entries[:5]: # 每次看最新的 5 个
+            for entry in feed.entries[:5]:
                 post_id = get_post_id(entry)
                 if post_id not in sent_posts:
-                    # 获取该帖子的评论 RSS
-                    # Reddit 帖子 RSS 链接通常是：[原贴链接].rss
                     post_rss_url = entry.link.split('?')[0].rstrip('/') + ".rss"
                     comments_text = ""
                     try:
                         post_resp = requests.get(post_rss_url, headers=headers, timeout=15)
                         post_feed = feedparser.parse(post_resp.content)
-                        # 跳过第一个 entry (那是主贴自己)，取后面 10 条作为评论
                         for comment_entry in post_feed.entries[1:11]:
                             c_body = clean_html(comment_entry.summary if 'summary' in comment_entry else "")
                             if c_body:
-                                comments_text += f"\n- {c_body[:500]}" # 每条评论限制长度
+                                comments_text += f"\n- {c_body[:500]}"
                     except Exception as ce:
                         print(f"抓取评论出错: {ce}")
 
-                    raw_content = entry.summary if 'summary' in entry else entry.description if 'description' in entry else ""
+                    # 增强内容抓取：尝试更多可能的字段
+                    raw_content = ""
+                    if 'content' in entry:
+                        raw_content = entry.content[0].value
+                    elif 'summary' in entry:
+                        raw_content = entry.summary
+                    elif 'description' in entry:
+                        raw_content = entry.description
+                    
                     full_text_for_ai = f"Title: {entry.title}\nContent: {raw_content}\nComments: {comments_text}"
                     
-                    print(f"分析中 (含评论): {entry.title}")
+                    print(f"分析中 (含评论): {entry.title} (内容长度: {len(raw_content)})")
                     
                     analysis_data = analyze_needs(full_text_for_ai)
                     translation, comments_summary, analysis, score, category = analysis_data
