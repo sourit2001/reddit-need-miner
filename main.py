@@ -19,6 +19,8 @@ NEED_SOURCES = [
     {"name": "r/SideProject", "url": "https://www.reddit.com/r/SideProject/new/.rss"},
     {"name": "r/Entrepreneur", "url": "https://www.reddit.com/r/Entrepreneur/new/.rss"},
     {"name": "r/Startups", "url": "https://www.reddit.com/r/Startups/new/.rss"},
+    {"name": "r/ai_agents", "url": "https://www.reddit.com/r/ai_agents/new/.rss"},
+    {"name": "r/openclaw", "url": "https://www.reddit.com/r/openclaw/new/.rss"},
     {"name": "Search: Tool request", "url": "https://www.reddit.com/search.rss?q=is+there+a+tool+for&sort=new"},
     {"name": "Search: Alternative to", "url": "https://www.reddit.com/search.rss?q=alternative+to&sort=new"}
 ]
