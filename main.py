@@ -147,15 +147,54 @@ def get_tenant_access_token():
 def send_to_bitable(title, link, source, translation, comments_summary, analysis, score, category, reason):
     if not (FEISHU_APP_ID and BITABLE_APP_TOKEN): return None
     token = get_tenant_access_token()
-    if not token: return None
-    url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{BITABLE_APP_TOKEN}/tables/{BITABLE_TABLE_ID}/records"
-    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-    fields = {
-        "标题": title, "链接": {"link": link, "text": "原帖"}, "来源": source,
-        "原文翻译": translation, "精选评论": comments_summary, "需求分析": analysis,
-        "潜力评分": score, "分类": category, "打分理由": reason, "捕获时间": int(datetime.now().timestamp() * 1000)
+    if not token: 
+        print("Error: Could not get Feishu token for Bitable sync")
+        return None
+    
+    # 1. 先探测表格现有的列名，避免因为缺失列导致整个插入失败
+    meta_url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{BITABLE_APP_TOKEN}/tables/{BITABLE_TABLE_ID}/fields"
+    headers = {"Authorization": f"Bearer {token}"}
+    try:
+        meta_resp = requests.get(meta_url, headers=headers)
+        existing_fields = [f.get("field_name") for f in meta_resp.json().get("data", {}).get("items", [])]
+    except Exception as e:
+        print(f"Warning: Could not fetch Bitable metadata: {e}")
+        existing_fields = []
+
+    # 2. 准备所有可能的字段
+    all_potential_fields = {
+        "标题": title,
+        "链接": {"link": link, "text": "原帖"},
+        "来源": source,
+        "原文翻译": translation,
+        "精选评论": comments_summary,
+        "需求分析": analysis,
+        "潜力评分": score,
+        "分类": category,
+        "打分理由": reason,
+        "捕获时间": int(datetime.now().timestamp() * 1000)
     }
-    return requests.post(url, json={"fields": fields}, headers=headers)
+
+    # 3. 过滤出表格中真正存在的字段
+    valid_fields = {}
+    if existing_fields:
+        for k, v in all_potential_fields.items():
+            if k in existing_fields:
+                valid_fields[k] = v
+            else:
+                print(f"  Note: Field '{k}' not found in Bitable, skipping.")
+    else:
+        # 如果获取不到元数据，则尝试全量发送（兜底逻辑）
+        valid_fields = all_potential_fields
+
+    # 4. 执行写入
+    url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{BITABLE_APP_TOKEN}/tables/{BITABLE_TABLE_ID}/records"
+    headers["Content-Type"] = "application/json"
+    resp = requests.post(url, json={"fields": valid_fields}, headers=headers)
+    
+    if resp.status_code != 200:
+        print(f"Bitable Sync Failed: {resp.text}")
+    return resp
 
 def main():
     if not FEISHU_WEBHOOK_URL: return
