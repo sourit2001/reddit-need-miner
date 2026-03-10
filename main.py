@@ -111,7 +111,6 @@ def analyze_needs(text, title):
     return "超时", "超时", "API调用失败", 0, "其他", "API错误"
 
 def send_to_feishu(title, link, source, translation, comments_summary, analysis, score, category, reason):
-    # 注意：这里的标签和之前不同，用于确认代码是否更新成功
     content = {
         "msg_type": "post",
         "content": {
@@ -130,20 +129,25 @@ def send_to_feishu(title, link, source, translation, comments_summary, analysis,
             }
         }
     }
-    requests.post(FEISHU_WEBHOOK_URL, json=content)
+    return requests.post(FEISHU_WEBHOOK_URL, json=content)
 
 def get_tenant_access_token():
     url = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
     payload = {"app_id": FEISHU_APP_ID, "app_secret": FEISHU_APP_SECRET}
     try:
         resp = requests.post(url, json=payload)
-        return resp.json().get("tenant_access_token")
-    except: return None
+        token = resp.json().get("tenant_access_token")
+        if not token:
+            print(f"Error: Token fetch failed. Response: {resp.text}")
+        return token
+    except Exception as e:
+        print(f"Error fetching tenant_access_token: {e}")
+        return None
 
 def send_to_bitable(title, link, source, translation, comments_summary, analysis, score, category, reason):
-    if not (FEISHU_APP_ID and BITABLE_APP_TOKEN): return
+    if not (FEISHU_APP_ID and BITABLE_APP_TOKEN): return None
     token = get_tenant_access_token()
-    if not token: return
+    if not token: return None
     url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{BITABLE_APP_TOKEN}/tables/{BITABLE_TABLE_ID}/records"
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     fields = {
@@ -151,7 +155,7 @@ def send_to_bitable(title, link, source, translation, comments_summary, analysis
         "原文翻译": translation, "精选评论": comments_summary, "需求分析": analysis,
         "潜力评分": score, "分类": category, "打分理由": reason, "捕获时间": int(datetime.now().timestamp() * 1000)
     }
-    requests.post(url, json={"fields": fields}, headers=headers)
+    return requests.post(url, json={"fields": fields}, headers=headers)
 
 def main():
     if not FEISHU_WEBHOOK_URL: return
@@ -163,7 +167,13 @@ def main():
         print(f"Scanning: {source_info['name']}...")
         try:
             resp = requests.get(source_info['url'], headers=headers, timeout=20)
+            if resp.status_code != 200:
+                print(f"  Warning: Failed to fetch {source_info['name']}, status: {resp.status_code}")
+                continue
+                
             feed = feedparser.parse(resp.content)
+            print(f"  Found {len(feed.entries)} entries.")
+            
             for entry in feed.entries[:5]:
                 post_id = get_post_id(entry)
                 if post_id not in sent_posts:
@@ -171,24 +181,41 @@ def main():
                     full_content, comments = "", ""
                     try:
                         p_resp = requests.get(post_rss_url, headers=headers, timeout=15)
-                        p_feed = feedparser.parse(p_resp.content)
-                        if p_feed.entries:
-                            full_content = clean_html(p_feed.entries[0].summary if 'summary' in p_feed.entries[0] else p_feed.entries[0].content[0].value if 'content' in p_feed.entries[0] else "")
-                            for c in p_feed.entries[1:6]:
-                                body = clean_html(c.summary if 'summary' in c else "")
-                                if body: comments += f"- {body[:300]}\n"
-                    except: pass
+                        if p_resp.status_code == 200:
+                            p_feed = feedparser.parse(p_resp.content)
+                            if p_feed.entries:
+                                main_post_entry = p_feed.entries[0]
+                                summary = main_post_entry.get('summary', '')
+                                content_list = main_post_entry.get('content', [])
+                                if summary:
+                                    full_content = clean_html(summary)
+                                elif content_list and len(content_list) > 0:
+                                    full_content = clean_html(content_list[0].get('value', ''))
+                                
+                                for c in p_feed.entries[1:6]:
+                                    body = clean_html(c.get('summary', ''))
+                                    if body: comments += f"- {body[:300]}\n"
+                        else:
+                            print(f"    Failed to fetch comments for {entry.title[:30]}, status: {p_resp.status_code}")
+                    except Exception as e:
+                        print(f"    Deep scan error: {e}")
                     
                     if not full_content:
-                        full_content = clean_html(entry.summary if 'summary' in entry else entry.description if 'description' in entry else "")
+                        full_content = clean_html(entry.get('summary', entry.get('description', '')))
 
-                    print(f"Analyzing: {entry.title} (Len: {len(full_content)})")
+                    print(f"  Analyzing: {entry.title} (Content Len: {len(full_content)})")
                     trans, comm, ans, score, cat, rs = analyze_needs(f"Title: {entry.title}\n{full_content}\nComments: {comments}", entry.title)
                     
-                    send_to_feishu(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
-                    send_to_bitable(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
+                    # 发送并记录响应
+                    f_resp = send_to_feishu(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
+                    b_resp = send_to_bitable(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
+                    
+                    if b_resp and b_resp.status_code != 200:
+                        print(f"    Bitable synchronization error: {b_resp.text}")
+                    
                     new_sent_list.append(post_id)
-        except Exception as e: print(f"Error: {e}")
+        except Exception as e: 
+            print(f"  Error processing source {source_info['name']}: {e}")
     save_sent_posts(new_sent_list)
 
 if __name__ == "__main__":
