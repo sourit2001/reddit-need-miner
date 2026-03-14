@@ -6,6 +6,10 @@ import hashlib
 import re
 import time
 from datetime import datetime
+from dotenv import load_dotenv
+
+# 加载本地 .env 环境变量
+load_dotenv()
 from main import (
     analyze_needs, 
     get_tenant_access_token, 
@@ -24,6 +28,12 @@ KEYWORDS_FILE = "deep_keywords.json"
 SENT_DEEP_FILE = "sent_deep_posts.json"
 
 def load_keywords():
+    # 优先从环境变量读取（由 GitHub Actions 从网页端通过 inputs 传入）
+    env_keywords = os.environ.get("DEEP_KEYWORDS")
+    if env_keywords:
+        return [k.strip() for k in env_keywords.split(",") if k.strip()]
+    
+    # 兜底：从本地 JSON 文件读取
     if os.path.exists(KEYWORDS_FILE):
         with open(KEYWORDS_FILE, 'r') as f:
             return json.load(f)

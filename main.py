@@ -5,6 +5,10 @@ import json
 import hashlib
 import re
 from datetime import datetime
+from dotenv import load_dotenv
+
+# 加载本地 .env 环境变量
+load_dotenv()
 
 # 环境配置
 FEISHU_WEBHOOK_URL = os.environ.get("FEISHU_WEBHOOK")
