@@ -28,7 +28,7 @@ jobs:
           FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
           BITABLE_APP_TOKEN: ${{ secrets.BITABLE_APP_TOKEN }}
           BITABLE_TABLE_ID: ${{ secrets.BITABLE_TABLE_ID }}
-          # 也可以单独为深度挖掘配置新的表格 ID
-          DEEP_BITABLE_APP_TOKEN: ${{ secrets.BITABLE_APP_TOKEN }}
-          DEEP_BITABLE_TABLE_ID: "tbluFwnEBfDWk0PB" 
+          # 使用专门为深度挖掘设计的环境变量名
+          DEEP_BITABLE_APP_TOKEN: ${{ secrets.DEEP_BITABLE_APP_TOKEN }}
+          DEEP_BITABLE_TABLE_ID: ${{ secrets.DEEP_BITABLE_TABLE_ID }}
         run: python deep_miner.py

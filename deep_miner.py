@@ -16,9 +16,9 @@ from main import (
     AI_API_KEY
 )
 
-# 深度挖掘专用配置 (已填入你提供的新表格 ID)
-DEEP_BITABLE_APP_TOKEN = os.environ.get("DEEP_BITABLE_APP_TOKEN") or "AXdEbb7Bwa7MqbsbEHscXNXOn9g"
-DEEP_BITABLE_TABLE_ID = os.environ.get("DEEP_BITABLE_TABLE_ID") or "tbluFwnEBfDWk0PB"
+# 深度挖掘专用配置 (从环境变量读取，确保与 main.py 隔离)
+DEEP_BITABLE_APP_TOKEN = os.environ.get("DEEP_BITABLE_APP_TOKEN")
+DEEP_BITABLE_TABLE_ID = os.environ.get("DEEP_BITABLE_TABLE_ID")
 
 KEYWORDS_FILE = "deep_keywords.json"
 SENT_DEEP_FILE = "sent_deep_posts.json"
