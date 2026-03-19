@@ -50,13 +50,17 @@ def clean_html(raw_html):
     cleaner = re.compile('<.*?>')
     return re.sub(cleaner, '', raw_html).strip()
 
-def analyze_needs(text, title):
+def analyze_needs(text, title, needs_translation=True):
     text = clean_html(text)
     if not text or len(text) < 10:
         text = f"Title: {title}\n(No content, analyze by title)"
     
     url = "https://api.deepseek.com/chat/completions"
     headers = {"Authorization": f"Bearer {AI_API_KEY}", "Content-Type": "application/json"}
+    
+    # 动态构建 Prompt，根据需要选择是否翻译
+    translation_prompt = "[翻译]\n内容\n" if needs_translation else ""
+    
     payload = {
         "model": "deepseek-chat",
         "messages": [
@@ -69,10 +73,10 @@ def analyze_needs(text, title):
                     "B. 竞争环境：是否已有大量免费替代品？（越少分越高）\n"
                     "C. 开发难度：是否适合独立开发者快速启动？（越易分越高）\n\n"
                     "请严格按此格式输出：\n"
-                    "[翻译]\n内容\n"
+                    f"{translation_prompt}"
                     "[精选评论]\n内容\n"
                     "[分析]\n内容\n"
-                    "[评分]\n数字 (请拉开差距，拒绝平庸的85分)\n"
+                    "[评分]\n数字 (请拉开差距，拒绝平庸 of 85分)\n"
                     "[打分理由]\n一句话解释得分点\n"
                     "[分类]\n类别"
                 )
@@ -87,23 +91,21 @@ def analyze_needs(text, title):
             resp = requests.post(url, json=payload, headers=headers, timeout=60)
             res_json = resp.json()
             full_content = res_json['choices'][0]['message']['content'].strip()
-            print(f"DEBUG AI RAW: {full_content[:200]}...")
 
             def quick_extract(tag, s):
                 pattern = rf"\[{tag}\]\s*(.*?)(?=\s*\[|$)"
                 match = re.search(pattern, s, re.DOTALL | re.IGNORECASE)
                 return match.group(1).strip() if match else ""
 
-            trans = quick_extract("翻译", full_content)
+            trans = quick_extract("翻译", full_content) if needs_translation else "原文搬运"
             comm = quick_extract("精选评论", full_content)
             ans = quick_extract("分析", full_content)
             score_s = quick_extract("评分", full_content)
             cat = quick_extract("分类", full_content)
             reason = quick_extract("打分理由", full_content)
 
-            # 强力兜底：如果解析不出任何东西
-            if not trans and len(full_content) > 20:
-                trans = "警告：格式解析失败，请看分析栏"
+            # 强力兜底
+            if not ans and len(full_content) > 20:
                 ans = full_content
             
             try: score = int(re.search(r'\d+', score_s).group())

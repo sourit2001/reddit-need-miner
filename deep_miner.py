@@ -24,6 +24,11 @@ from main import (
 DEEP_BITABLE_APP_TOKEN = os.environ.get("DEEP_BITABLE_APP_TOKEN")
 DEEP_BITABLE_TABLE_ID = os.environ.get("DEEP_BITABLE_TABLE_ID")
 
+# 启动调试：验证 ID 是否加载正确 (只显示前4位保护隐私)
+print(f"DEBUG: App ID loaded: {FEISHU_APP_ID[:4]}..." if FEISHU_APP_ID else "DEBUG: App ID NOT LOADED")
+print(f"DEBUG: App Token used: {DEEP_BITABLE_APP_TOKEN[:6]}..." if DEEP_BITABLE_APP_TOKEN else "DEBUG: App Token NOT LOADED")
+print(f"DEBUG: Table ID used: {DEEP_BITABLE_TABLE_ID[:6]}..." if DEEP_BITABLE_TABLE_ID else "DEBUG: Table ID NOT LOADED")
+
 KEYWORDS_FILE = "deep_keywords.json"
 SENT_DEEP_FILE = "sent_deep_posts.json"
 
@@ -57,24 +62,57 @@ def send_to_deep_bitable(keyword, title, link, source, translation, comments_sum
     token = get_tenant_access_token()
     if not token: return None
     
-    url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{DEEP_BITABLE_APP_TOKEN}/tables/{DEEP_BITABLE_TABLE_ID}/records"
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
-    
-    fields = {
-        "标题": title,
+    # 1. 先探测表格现有的列名，确保 100% 写入成功
+    meta_url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{DEEP_BITABLE_APP_TOKEN}/tables/{DEEP_BITABLE_TABLE_ID}/fields"
+    headers = {"Authorization": f"Bearer {token}"}
+    existing_fields = []
+    try:
+        meta_resp = requests.get(meta_url, headers=headers)
+        meta_json = meta_resp.json()
+        existing_fields = [f.get("field_name") for f in meta_json.get("data", {}).get("items", [])]
+        if not existing_fields:
+            print(f"Warning: Could not fetch fields for table {DEEP_BITABLE_TABLE_ID}. Check permissions. Response: {meta_resp.text}")
+    except Exception as e:
+        print(f"Warning: Field metadata error: {e}")
+
+    # 2. 准备所有可能的字段 (精准匹配你新表的列类型)
+    data_map = {
+        "标题": str(title),
         "链接": {"link": link, "text": "原帖"},
-        "原文翻译": translation,
-        "精选评论": comments_summary,
-        "需求分析": analysis,
-        "相关性": score,  # 将 AI 评分映射为“相关性”
-        "搜索关键词": keyword, # 方便你查看这个帖子具体对应你筛选的哪个词
-        "捕获时间": int(datetime.now().timestamp() * 1000)
+        "原文翻译": str(translation),
+        "精选评论": str(comments_summary),
+        "需求分析": str(analysis),
+        "相关性": str(score),  # 你的表里这一列是“文本”，必须传字符串
+        "搜索关键词": str(keyword),
+        "捕获时间": int(datetime.now().timestamp() * 1000) # 你的表里这一列是“日期”，必须传毫秒时间戳
     }
     
-    resp = requests.post(url, json={"fields": fields}, headers=headers)
+    # 3. 过滤出表格中真正存在的字段
+    valid_fields = {}
+    for k, v in data_map.items():
+        if k in existing_fields:
+            valid_fields[k] = v
+        else:
+            print(f"  (Skipping field '{k}' as it's not in your Bitable)")
+
+    if not valid_fields:
+        print("Error: No matching fields found in Bitable! Please check your column names.")
+        return None
+
+    # 4. 执行写入
+    url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{DEEP_BITABLE_APP_TOKEN}/tables/{DEEP_BITABLE_TABLE_ID}/records"
+    headers["Content-Type"] = "application/json"
+    
+    resp = requests.post(url, json={"fields": valid_fields}, headers=headers)
+    res_json = resp.json()
+    
+    # 精确判断是否成功 (根据飞书内部 code)
+    if res_json.get("code") == 0:
+        print(f"✅ SUCCESS: Record created! ID: {res_json.get('data', {}).get('record', {}).get('id')}")
+    else:
+        print(f"❌ FAILED: Feishu Error Code {res_json.get('code')}")
+        print(f"   Reason: {res_json.get('msg')}")
+        print(f"   Details: {res_json.get('error', {}).get('message')}")
     return resp
 
 def run_deep_miner():

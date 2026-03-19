@@ -62,8 +62,12 @@ with col2:
     status_container = st.empty()
     log_container = st.container()
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+# ... (之前的部分保持不变)
+
 # 运行按钮
-if st.button("✨ 开启本地挖掘引擎"):
+if st.button("🚀 开启极速挖掘引擎"):
     if not input_keywords:
         st.error("请输入至少一个关键词")
     elif not has_keys:
@@ -73,69 +77,77 @@ if st.button("✨ 开启本地挖掘引擎"):
         sent_posts = load_sent_deep()
         new_sent_list = list(sent_posts)
         
+        st.write("### 🛰️ 正在启动并发挖掘引擎...")
         progress_bar = st.progress(0)
-        total_steps = len(keywords)
-        current_step = 0
-
-        with log_container:
+        
+        # 收集所有待处理的任务
+        all_tasks = []
+        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'}
+        
+        with st.spinner("正在从 Reddit 检索最新数据..."):
             for kw in keywords:
-                current_step += 1
-                st.write(f"🔍 **正在深入搜索: {kw}...**")
-                
                 search_urls = [
                     f"https://www.reddit.com/search.rss?q={kw.replace(' ', '+')}&sort=relevance&t=year",
                     f"https://www.reddit.com/search.rss?q={kw.replace(' ', '+')}&sort=top&t=all"
                 ]
-
-                results_found = 0
-                for search_url in search_urls:
+                for url in search_urls:
                     try:
-                        resp = requests.get(search_url, timeout=15)
+                        resp = requests.get(url, headers=headers, timeout=15)
                         feed = feedparser.parse(resp.content)
-                        
                         for entry in feed.entries[:fetch_num // 2]:
-                            post_id = get_post_id(entry)
-                            if post_id in sent_posts:
-                                st.text(f"  ⏭️ 跳过已处理: {entry.title[:40]}...")
-                                continue
+                            if get_post_id(entry) not in sent_posts:
+                                all_tasks.append((kw, entry))
+                    except: pass
 
-                            st.write(f"  ⏳ 正在 AI 分析: {entry.title}")
-                            
-                            # 深度抓取
-                            post_rss_url = entry.link.split('?')[0].rstrip('/') + ".rss"
-                            full_content, comments = "", ""
-                            try:
-                                p_resp = requests.get(post_rss_url, timeout=10)
-                                p_feed = feedparser.parse(p_resp.content)
-                                if p_feed.entries:
-                                    main_post = p_feed.entries[0]
-                                    full_content = clean_html(main_post.get('summary', ''))
-                                    for c in p_feed.entries[1:6]:
-                                        body = clean_html(c.get('summary', ''))
-                                        if body: comments += f"- {body[:200]}\n"
-                            except: pass
-
-                            # AI 分析
-                            trans, comm, ans, score, cat, rs = analyze_needs(
-                                f"Keyword: {kw}\nTitle: {entry.title}\n{full_content}\nComments: {comments}", 
-                                entry.title
-                            )
-
-                            # 推送
-                            st.text(f"  📤 同步飞书 (相关性: {score})...")
-                            b_resp = send_to_deep_bitable(kw, entry.title, entry.link, "reddit-deep-miner", trans, comm, ans, score, cat, rs)
-                            
-                            if b_resp and b_resp.status_code == 200:
-                                new_sent_list.append(post_id)
-                                results_found += 1
-                            
-                            time.sleep(0.5)
-                    except Exception as e:
-                        st.error(f"挖掘异常: {e}")
-
-                st.success(f"✅ {kw} 挖掘完成，新增 {results_found} 条记录！")
-                progress_bar.progress(current_step / total_steps)
+        if not all_tasks:
+            st.warning("没有发现新的未处理帖子。")
+        else:
+            st.info(f"💾 共检索到 {len(all_tasks)} 篇新需求，正在开启 5 线程并发处理...")
             
+            # 使用线程池并发执行 AI 分析和推送
+            def process_single_post(kw, entry):
+                try:
+                    # 获取深度内容
+                    post_rss_url = entry.link.split('?')[0].rstrip('/') + ".rss"
+                    full_content, comments = "", ""
+                    p_resp = requests.get(post_rss_url, headers=headers, timeout=10)
+                    p_feed = feedparser.parse(p_resp.content)
+                    if p_feed.entries:
+                        main_post = p_feed.entries[0]
+                        full_content = clean_html(main_post.get('summary', ''))
+                        for c in p_feed.entries[1:11]:
+                            body = clean_html(c.get('summary', ''))
+                            if body: comments += f"- {body[:300]}\n"
+                    
+                    if not full_content: full_content = clean_html(entry.get('summary', ''))
+
+                    # AI 分析 (手动设置为不需翻译，确保极速)
+                    _, comm, ans, score, cat, rs = analyze_needs(
+                        f"Keyword: {kw}\nTitle: {entry.title}\n{full_content}\nComments: {comments}", 
+                        entry.title,
+                        needs_translation=False
+                    )
+
+                    # 推送飞书 (直接传递原文 full_content)
+                    send_to_deep_bitable(kw, entry.title, entry.link, "reddit-deep-miner", full_content, comm, ans, score, cat, rs)
+                    return get_post_id(entry), entry.title
+                except Exception as e:
+                    return None, str(e)
+
+            # 进度跟踪
+            completed = 0
+            with ThreadPoolExecutor(max_workers=5) as executor:
+                futures = {executor.submit(process_single_post, kw, ent): ent for kw, ent in all_tasks}
+                for future in as_completed(futures):
+                    pid, title = future.result()
+                    completed += 1
+                    if pid:
+                        new_sent_list.append(pid)
+                        st.write(f"✅ [{completed}/{len(all_tasks)}] 已完成: {title}")
+                    else:
+                        st.write(f"❌ 失败: {title}")
+                    progress_bar.progress(completed / len(all_tasks))
+
             save_sent_deep(new_sent_list)
             st.balloons()
-            st.success("🎉 所有深度挖掘任务已圆满结束！请前往飞书查看。")
+            st.success(f"🎉 挖掘大功告成！共更新 {completed} 条深度需求。")
