@@ -19,15 +19,18 @@ BITABLE_APP_TOKEN = os.environ.get("BITABLE_APP_TOKEN")
 BITABLE_TABLE_ID = os.environ.get("BITABLE_TABLE_ID")
 
 NEED_SOURCES = [
-    {"name": "r/SaaS", "url": "https://www.reddit.com/r/SaaS/new/.rss"},
-    {"name": "r/SideProject", "url": "https://www.reddit.com/r/SideProject/new/.rss"},
-    {"name": "r/Entrepreneur", "url": "https://www.reddit.com/r/Entrepreneur/new/.rss"},
-    {"name": "r/Startups", "url": "https://www.reddit.com/r/Startups/new/.rss"},
-    {"name": "r/ai_agents", "url": "https://www.reddit.com/r/ai_agents/new/.rss"},
-    {"name": "r/SEO", "url": "https://www.reddit.com/r/SEO/new/.rss"},
-    {"name": "r/openclaw", "url": "https://www.reddit.com/r/openclaw/new/.rss"},
-    {"name": "Search: Tool request", "url": "https://www.reddit.com/search.rss?q=is+there+a+tool+for&sort=new"},
-    {"name": "Search: Alternative to", "url": "https://www.reddit.com/search.rss?q=alternative+to&sort=new"}
+    # 捕获当前正在热烈讨论的话题 (Hot 排序)
+    {"name": "r/SaaS (Hot)", "url": "https://www.reddit.com/r/SaaS/hot/.rss"},
+    {"name": "r/SideProject (Hot)", "url": "https://www.reddit.com/r/SideProject/hot/.rss"},
+    {"name": "r/Entrepreneur (Hot)", "url": "https://www.reddit.com/r/Entrepreneur/hot/.rss"},
+    {"name": "r/Startups (Hot)", "url": "https://www.reddit.com/r/Startups/hot/.rss"},
+    {"name": "r/ai_agents (Hot)", "url": "https://www.reddit.com/r/ai_agents/hot/.rss"},
+    {"name": "r/SEO (Hot)", "url": "https://www.reddit.com/r/SEO/hot/.rss"},
+    {"name": "r/openclaw (New)", "url": "https://www.reddit.com/r/openclaw/new/.rss"}, # 小组保持 New 以抓取最新
+    
+    # 搜索: 聚焦相关度最高的痛点
+    {"name": "Search: Tool request (Relevance)", "url": "https://www.reddit.com/search.rss?q=is+there+a+tool+for&sort=relevance&t=week"},
+    {"name": "Search: Alternative to (Top)", "url": "https://www.reddit.com/search.rss?q=alternative+to&sort=top&t=week"}
 ]
 
 DATA_FILE = "sent_posts.json"
