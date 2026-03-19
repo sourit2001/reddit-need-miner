@@ -25,6 +25,14 @@ jobs:
         run: |
           pip install -r requirements.txt
 
+      - name: Cache Sent Posts
+        uses: actions/cache@v3
+        with:
+          path: sent_posts.json
+          key: sent-posts-${{ github.run_id }}
+          restore-keys: |
+            sent-posts-
+
       - name: Run Miner
         env:
           FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
@@ -34,11 +42,3 @@ jobs:
           BITABLE_APP_TOKEN: ${{ secrets.BITABLE_APP_TOKEN }}
           BITABLE_TABLE_ID: ${{ secrets.BITABLE_TABLE_ID }}
         run: python main.py
-
-      - name: Commit and Push if updated
-        run: |
-          git config --local user.email "github-actions[bot]@github.com"
-          git config --local user.name "github-actions[bot]"
-          git add sent_posts.json
-          git commit -m "chore: update sent posts cache" || echo "No changes to commit"
-          git push
