@@ -16,6 +16,7 @@ from deep_miner import (
     send_to_deep_bitable,
     get_post_id
 )
+from scraper import scrape_reddit_search
 from main import analyze_needs, clean_html, AI_API_KEY, FEISHU_APP_ID
 
 # 页面配置
@@ -82,62 +83,62 @@ if st.button("🚀 开启极速挖掘引擎"):
         
         # 收集所有待处理的任务
         all_tasks = []
-        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'}
-        
-        with st.spinner("正在从 Reddit 检索最新数据..."):
+        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'}        # 抓取阶段：使用真机爬虫
+        with st.spinner("🚀 正在调用极速真机搜索引擎 (匹配网页版结果)..."):
             for kw in keywords:
-                search_urls = [
-                    f"https://www.reddit.com/search.rss?q={kw.replace(' ', '+')}&sort=relevance&t=year",
-                    f"https://www.reddit.com/search.rss?q={kw.replace(' ', '+')}&sort=top&t=all"
-                ]
-                for url in search_urls:
-                    try:
-                        resp = requests.get(url, headers=headers, timeout=15)
-                        feed = feedparser.parse(resp.content)
-                        for entry in feed.entries[:fetch_num // 2]:
-                            if get_post_id(entry) not in sent_posts:
-                                all_tasks.append((kw, entry))
-                    except: pass
+                results = scrape_reddit_search(kw, time_range='month', limit=fetch_num)
+                for item in results:
+                    pid = get_post_id(item)
+                    if pid not in sent_posts:
+                        # 抓取单贴 RSS 以获取正文
+                        try:
+                            post_rss_url = item['link'].rstrip('/') + ".rss"
+                            p_resp = requests.get(post_rss_url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=10)
+                            if p_resp.status_code == 200:
+                                p_feed = feedparser.parse(p_resp.content)
+                                if p_feed.entries:
+                                    # 将原始 entry 存入任务列表
+                                    all_tasks.append((kw, p_feed.entries[0], p_feed.entries[1:6]))
+                        except: continue
 
         if not all_tasks:
-            st.warning("没有发现新的未处理帖子。")
+            st.warning("没有发现新的、高相关的贴子。")
         else:
             st.info(f"💾 共检索到 {len(all_tasks)} 篇新需求，正在开启 5 线程并发处理...")
             
             # 使用线程池并发执行 AI 分析和推送
-            def process_single_post(kw, entry):
+            def process_single_post(kw, main_post_entry, comment_entries):
                 try:
-                    # 获取深度内容
-                    post_rss_url = entry.link.split('?')[0].rstrip('/') + ".rss"
-                    full_content, comments = "", ""
-                    p_resp = requests.get(post_rss_url, headers=headers, timeout=10)
-                    p_feed = feedparser.parse(p_resp.content)
-                    if p_feed.entries:
-                        main_post = p_feed.entries[0]
-                        full_content = clean_html(main_post.get('summary', ''))
-                        for c in p_feed.entries[1:11]:
-                            body = clean_html(c.get('summary', ''))
-                            if body: comments += f"- {body[:300]}\n"
+                    # 获取正文和评论 (已在抓取阶段获取)
+                    full_content = clean_html(main_post_entry.get('summary', main_post_entry.get('description', '')))
+                    comments = ""
+                    for c in comment_entries:
+                        body = clean_html(c.get('summary', ''))
+                        if body: comments += f"- {body[:300]}\n"
                     
-                    if not full_content: full_content = clean_html(entry.get('summary', ''))
+                    if not full_content: full_content = "无正文"
 
                     # AI 分析 (手动设置为不需翻译，确保极速)
                     _, comm, ans, score, cat, rs = analyze_needs(
-                        f"Keyword: {kw}\nTitle: {entry.title}\n{full_content}\nComments: {comments}", 
-                        entry.title,
+                        f"Keyword: {kw}\nTitle: {main_post_entry.title}\n{full_content}\nComments: {comments}", 
+                        main_post_entry.title,
                         needs_translation=False
                     )
 
-                    # 推送飞书 (直接传递原文 full_content)
-                    send_to_deep_bitable(kw, entry.title, entry.link, "reddit-deep-miner", full_content, comm, ans, score, cat, rs)
-                    return get_post_id(entry), entry.title
+                    # 仅在评分合理时推送
+                    if score >= 45:
+                        send_to_deep_bitable(kw, main_post_entry.title, main_post_entry.link, "reddit-deep-miner", full_content, comm, ans, score, cat, rs)
+                        return get_post_id(main_post_entry), f"{main_post_entry.title} (Score: {score})"
+                    else:
+                        return get_post_id(main_post_entry), f"SKIP (Score: {score}): {main_post_entry.title}"
                 except Exception as e:
                     return None, str(e)
 
             # 进度跟踪
             completed = 0
             with ThreadPoolExecutor(max_workers=5) as executor:
-                futures = {executor.submit(process_single_post, kw, ent): ent for kw, ent in all_tasks}
+                # 传入元组解包
+                futures = {executor.submit(process_single_post, kw, main_ent, comm_ents): main_ent for kw, main_ent, comm_ents in all_tasks}
                 for future in as_completed(futures):
                     pid, title = future.result()
                     completed += 1

@@ -6,6 +6,7 @@ import hashlib
 import re
 from datetime import datetime
 from dotenv import load_dotenv
+from scraper import scrape_reddit_search
 
 # 加载本地 .env 环境变量
 load_dotenv()
@@ -19,25 +20,25 @@ BITABLE_APP_TOKEN = os.environ.get("BITABLE_APP_TOKEN")
 BITABLE_TABLE_ID = os.environ.get("BITABLE_TABLE_ID")
 
 NEED_SOURCES = [
-    # 1. 实时捕获最新需求 (New 排序)
-    {"name": "r/SaaS (New)", "url": "https://www.reddit.com/r/SaaS/new/.rss"},
-    {"name": "r/SideProject (New)", "url": "https://www.reddit.com/r/SideProject/new/.rss"},
-    {"name": "r/Entrepreneur (New)", "url": "https://www.reddit.com/r/Entrepreneur/new/.rss"},
-    {"name": "r/Startups (New)", "url": "https://www.reddit.com/r/Startups/new/.rss"},
-    {"name": "r/ai_agents (New)", "url": "https://www.reddit.com/r/ai_agents/new/.rss"},
-    {"name": "r/SEO (New)", "url": "https://www.reddit.com/r/SEO/new/.rss"},
-    {"name": "r/openclaw (New)", "url": "https://www.reddit.com/r/openclaw/new/.rss"},
+    # 1. 实时捕获最新需求 (RSS 效率最高)
+    {"name": "r/SaaS (New)", "url": "https://www.reddit.com/r/SaaS/new/.rss", "type": "rss"},
+    {"name": "r/SideProject (New)", "url": "https://www.reddit.com/r/SideProject/new/.rss", "type": "rss"},
+    {"name": "r/Entrepreneur (New)", "url": "https://www.reddit.com/r/Entrepreneur/new/.rss", "type": "rss"},
+    {"name": "r/Startups (New)", "url": "https://www.reddit.com/r/Startups/new/.rss", "type": "rss"},
+    {"name": "r/ai_agents (New)", "url": "https://www.reddit.com/r/ai_agents/new/.rss", "type": "rss"},
+    {"name": "r/SEO (New)", "url": "https://www.reddit.com/r/SEO/new/.rss", "type": "rss"},
+    {"name": "r/openclaw (New)", "url": "https://www.reddit.com/r/openclaw/new/.rss", "type": "rss"},
     
-    # 2. 捕捉深度讨论与高热度话题 (Hot 排序)
-    {"name": "r/SaaS (Hot)", "url": "https://www.reddit.com/r/SaaS/hot/.rss"},
-    {"name": "r/SideProject (Hot)", "url": "https://www.reddit.com/r/SideProject/hot/.rss"},
-    {"name": "r/Entrepreneur (Hot)", "url": "https://www.reddit.com/r/Entrepreneur/hot/.rss"},
-    {"name": "r/Startups (Hot)", "url": "https://www.reddit.com/r/Startups/hot/.rss"},
-    {"name": "r/SEO (Hot)", "url": "https://www.reddit.com/r/SEO/hot/.rss"},
+    # 2. 捕捉深度讨论与高热度话题 (RSS 效率最高)
+    {"name": "r/SaaS (Hot)", "url": "https://www.reddit.com/r/SaaS/hot/.rss", "type": "rss"},
+    {"name": "r/SEO (Hot)", "url": "https://www.reddit.com/r/SEO/hot/.rss", "type": "rss"},
+    {"name": "r/PhotoEditing (New)", "url": "https://www.reddit.com/r/PhotoEditing/new/.rss", "type": "rss"},
     
-    # 3. 关键词搜索: 基于相关度与高权重抓取
-    {"name": "Search: Tool request", "url": "https://www.reddit.com/search.rss?q=is+there+a+tool+for&sort=relevance&t=week"},
-    {"name": "Search: Alternative to", "url": "https://www.reddit.com/search.rss?q=alternative+to&sort=top&t=week"}
+    # 3. 极速真机搜索: 解决 RSS 搜索不准的问题 (Scraper 最准确)
+    {"name": "Search: Tool Request", "query": "is there a tool for", "type": "search"},
+    {"name": "Search: Alternative", "query": "alternative to", "type": "search"},
+    {"name": "Search: Image Editing", "query": "image editing automate", "type": "search"},
+    {"name": "Search: Photo Tool", "query": "tool for batch photo editing", "type": "search"}
 ]
 
 DATA_FILE = "sent_posts.json"
@@ -221,16 +222,34 @@ def main():
 
     for source_info in NEED_SOURCES:
         print(f"Scanning: {source_info['name']}...")
+        entries_to_process = []
+        
         try:
-            resp = requests.get(source_info['url'], headers=headers, timeout=20)
-            if resp.status_code != 200:
-                print(f"  Warning: Failed to fetch {source_info['name']}, status: {resp.status_code}")
-                continue
-                
-            feed = feedparser.parse(resp.content)
-            print(f"  Found {len(feed.entries)} entries.")
+            if source_info.get('type') == 'rss':
+                resp = requests.get(source_info['url'], headers=headers, timeout=20)
+                if resp.status_code == 200:
+                    feed = feedparser.parse(resp.content)
+                    entries_to_process = feed.entries[:8] # 取前 8 条
+            else:
+                # 使用真机爬虫
+                scraped = scrape_reddit_search(source_info['query'], time_range='month', limit=8)
+                # 转换成兼容的格式
+                for item in scraped:
+                    # 对于爬虫抓到的链接，我们需要去抓取它单贴的 RSS 以获取正文和评论
+                    try:
+                        post_rss_url = item['link'].rstrip('/') + ".rss"
+                        p_resp = requests.get(post_rss_url, headers=headers, timeout=10)
+                        if p_resp.status_code == 200:
+                            p_feed = feedparser.parse(p_resp.content)
+                            if p_feed.entries:
+                                # 第一个 entry 就是主贴
+                                entry = p_feed.entries[0]
+                                entries_to_process.append(entry)
+                    except: continue
             
-            for entry in feed.entries[:5]:
+            print(f"  Processing {len(entries_to_process)} entries.")
+            
+            for entry in entries_to_process:
                 post_id = get_post_id(entry)
                 if post_id not in sent_posts:
                     post_rss_url = entry.link.split('?')[0].rstrip('/') + ".rss"
@@ -262,12 +281,16 @@ def main():
                     print(f"  Analyzing: {entry.title} (Content Len: {len(full_content)})")
                     trans, comm, ans, score, cat, rs = analyze_needs(f"Title: {entry.title}\n{full_content}\nComments: {comments}", entry.title)
                     
-                    # 发送并记录响应
-                    f_resp = send_to_feishu(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
-                    b_resp = send_to_bitable(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
-                    
-                    if b_resp and b_resp.status_code != 200:
-                        print(f"    Bitable synchronization error: {b_resp.text}")
+                    # 仅在评分大于等于 60 时才推送，过滤无关或低质量贴子
+                    if score >= 60:
+                        print(f"    🚀 高分商机 ({score})，正在推送...")
+                        f_resp = send_to_feishu(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
+                        b_resp = send_to_bitable(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
+                        
+                        if b_resp and b_resp.status_code != 200:
+                            print(f"    Bitable synchronization error: {b_resp.text}")
+                    else:
+                        print(f"    ⏩ 评分较低 ({score})，跳过同步，记录已处理。")
                     
                     new_sent_list.append(post_id)
         except Exception as e: 

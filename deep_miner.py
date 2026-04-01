@@ -19,6 +19,7 @@ from main import (
     FEISHU_APP_SECRET,
     AI_API_KEY
 )
+from scraper import scrape_reddit_search
 
 # 深度挖掘专用配置 (从环境变量读取，确保与 main.py 隔离)
 DEEP_BITABLE_APP_TOKEN = os.environ.get("DEEP_BITABLE_APP_TOKEN")
@@ -127,43 +128,33 @@ def run_deep_miner():
 
     for kw in keywords:
         print(f"\n🔍 Deep Mining for: {kw}...")
-        # 针对每个词，搜索 Reddit 的 Relevance (相关度) 和 Top (热门)
-        # 这样能挖出历史上最有价值的痛点，而不只是最近的抱怨
-        search_urls = [
-            f"https://www.reddit.com/search.rss?q={kw.replace(' ', '+')}&sort=relevance&t=year",
-            f"https://www.reddit.com/search.rss?q={kw.replace(' ', '+')}&sort=top&t=all"
-        ]
-
-        for search_url in search_urls:
-            try:
-                resp = requests.get(search_url, headers=headers, timeout=20)
-                if resp.status_code != 200: continue
+        
+        try:
+            # 针对每个词，改用“真机爬虫”搜索
+            # 这样能挖出和网页版一样精准的结果
+            results = scrape_reddit_search(kw, time_range='month', limit=15)
+            
+            for item in results:
+                try:
+                    # 同样的逻辑：抓取主贴 RSS 以获取深度内容
+                    post_rss_url = item['link'].rstrip('/') + ".rss"
+                    p_resp = requests.get(post_rss_url, headers=headers, timeout=10)
+                    if p_resp.status_code != 200: continue
                     
-                feed = feedparser.parse(resp.content)
-                print(f"  Found {len(feed.entries)} potential posts...")
-                
-                # 深度挖掘每个词取前 10 个最相关的
-                for entry in feed.entries[:10]:
+                    p_feed = feedparser.parse(p_resp.content)
+                    if not p_feed.entries: continue
+                    
+                    entry = p_feed.entries[0] # 主贴
                     post_id = get_post_id(entry)
                     if post_id in sent_posts: continue
+                    
+                    full_content = clean_html(entry.get('summary', entry.get('description', '')))
+                    comments = ""
+                    for c in p_feed.entries[1:10]: # 深度挖掘可以多看几条评论
+                        body = clean_html(c.get('summary', ''))
+                        if body: comments += f"- {body[:300]}\n"
 
                     print(f"  📝 Analyzing: {entry.title}")
-                    
-                    # 深度抓取评论：尝试拉取 rss 获取更多评论
-                    post_rss_url = entry.link.split('?')[0].rstrip('/') + ".rss"
-                    full_content, comments = "", ""
-                    try:
-                        p_resp = requests.get(post_rss_url, headers=headers, timeout=15)
-                        if p_resp.status_code == 200:
-                            p_feed = feedparser.parse(p_resp.content)
-                            if p_feed.entries:
-                                main_post = p_feed.entries[0]
-                                full_content = clean_html(main_post.get('summary', main_post.get('description', '')))
-                                # 深度挖掘取前 10 条评论（比 main.py 的 5 条更多）
-                                for c in p_feed.entries[1:11]:
-                                    body = clean_html(c.get('summary', ''))
-                                    if body: comments += f"- {body[:400]}\n"
-                    except: pass
                     
                     if not full_content:
                         full_content = clean_html(entry.get('summary', entry.get('description', '')))
@@ -174,21 +165,28 @@ def run_deep_miner():
                         entry.title
                     )
                     
-                    # 同步到飞书
-                    print(f"  📤 Syncing to Bitable (Score: {score})...")
-                    b_resp = send_to_deep_bitable(kw, entry.title, entry.link, "Reddit Deep Miner", trans, comm, ans, score, cat, rs)
-                    
-                    if b_resp and b_resp.status_code == 200:
+                    # 深度挖掘通常长尾需求多，阈值设为 45 过滤完全无关的内容
+                    if score >= 45:
+                        print(f"  📤 Syncing to Bitable (Score: {score})...")
+                        b_resp = send_to_deep_bitable(kw, entry.title, entry.link, "Reddit Deep Miner", trans, comm, ans, score, cat, rs)
+                        
+                        if b_resp and b_resp.status_code == 200:
+                            new_sent_list.append(post_id)
+                            save_sent_deep(new_sent_list)
+                        else:
+                            print(f"  ❌ Sync failed: {b_resp.text if b_resp else 'No Response'}")
+                    else:
+                        print(f"  ⏩ Score {score} too low, skipping.")
                         new_sent_list.append(post_id)
                         save_sent_deep(new_sent_list)
-                    else:
-                        print(f"  ❌ Sync failed: {b_resp.text if b_resp else 'No Response'}")
                     
                     # 避免触发频率限制
                     time.sleep(1)
+                except Exception as e:
+                    print(f"  Error processing post: {e}")
 
-            except Exception as e:
-                print(f"  Error searching {kw}: {e}")
+        except Exception as e:
+            print(f"  Error searching {kw}: {e}")
 
     print("\n✅ Deep Mining task completed!")
 

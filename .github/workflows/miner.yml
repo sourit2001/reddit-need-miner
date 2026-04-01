@@ -24,6 +24,8 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          playwright install chromium
+          playwright install-deps chromium
 
       - name: Cache Sent Posts
         uses: actions/cache@v3
