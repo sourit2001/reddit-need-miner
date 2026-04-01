@@ -14,19 +14,33 @@ def scrape_reddit_search(query, time_range='month', limit=10):
     search_url = f"https://www.reddit.com/search/?q={query.replace(' ', '%20')}&sort=relevance&t={time_range}"
     
     with sync_playwright() as p:
-        # 使用随机 User-Agent
+        # 使用更写实的浏览器配置
         browser = p.chromium.launch(headless=True)
         context = browser.new_context(
-            user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+            viewport={'width': 1280, 'height': 720},
+            extra_http_headers={
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Referer': 'https://www.google.com/'
+            }
         )
         page = context.new_page()
         
         try:
             print(f"📡 Scaper: Navigating to {search_url}")
-            page.goto(search_url, timeout=60000)
+            page.goto(search_url, timeout=60000, wait_until="domcontentloaded")
+            
+            # 检查是否遇到了人机验证
+            if "Verify you are human" in page.content():
+                print("⚠️ Scraper: Detected 'Verify you are human' block page.")
+                return results # 返回空，由 main 逻辑处理 fallback
             
             # 等待搜索结果加载 (最新 Reddit 搜索页容器是 div[data-testid="sdui-post-unit"])
-            page.wait_for_selector("div[data-testid='sdui-post-unit']", timeout=20000)
+            try:
+                page.wait_for_selector("div[data-testid='sdui-post-unit']", timeout=15000)
+            except:
+                print("⚠️ Scraper: Timeout waiting for results. Possibly blocked or different layout.")
+                return results
             
             # 滚动一下获取更多内容
             page.mouse.wheel(0, 2000)

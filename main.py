@@ -29,10 +29,10 @@ NEED_SOURCES = [
     {"name": "r/SEO (New)", "url": "https://www.reddit.com/r/SEO/new/.rss", "type": "rss"},
     {"name": "r/openclaw (New)", "url": "https://www.reddit.com/r/openclaw/new/.rss", "type": "rss"},
     
-    # 2. 捕捉深度讨论与高热度话题 (RSS 效率最高)
+    # 2. 捕捉深度讨论与高热度话题 (针对性小组)
     {"name": "r/SaaS (Hot)", "url": "https://www.reddit.com/r/SaaS/hot/.rss", "type": "rss"},
-    {"name": "r/SEO (Hot)", "url": "https://www.reddit.com/r/SEO/hot/.rss", "type": "rss"},
-    {"name": "r/PhotoEditing (New)", "url": "https://www.reddit.com/r/PhotoEditing/new/.rss", "type": "rss"},
+    {"name": "r/PhotoshopRequest", "url": "https://www.reddit.com/r/PhotoshopRequest/new/.rss", "type": "rss"},
+    {"name": "r/postprocessing", "url": "https://www.reddit.com/r/postprocessing/new/.rss", "type": "rss"},
     
     # 3. 极速真机搜索: 解决 RSS 搜索不准的问题 (Scraper 最准确)
     {"name": "Search: Tool Request", "query": "is there a tool for", "type": "search"},
@@ -218,7 +218,13 @@ def main():
     if not FEISHU_WEBHOOK_URL: return
     sent_posts = load_sent_posts()
     new_sent_list = list(sent_posts)
-    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'}
+    # 使用更真实的现代浏览器 User-Agent
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache',
+    }
 
     for source_info in NEED_SOURCES:
         print(f"Scanning: {source_info['name']}...")
@@ -230,9 +236,29 @@ def main():
                 if resp.status_code == 200:
                     feed = feedparser.parse(resp.content)
                     entries_to_process = feed.entries[:8] # 取前 8 条
+                else:
+                    print(f"  Warning: HTTP {resp.status_code} for {source_info['name']}")
+                    if resp.status_code == 429:
+                        print("  Detected Rate Limiting (429). Waiting 30s...")
+                        time.sleep(30)
             else:
                 # 使用真机爬虫
                 scraped = scrape_reddit_search(source_info['query'], time_range='month', limit=8)
+                
+                # 🔄 Fallback: 如果真机爬虫失败（可能被封），尝试简单的 JSON 接口
+                if not scraped:
+                    print(f"  Scraper returned 0 results. Falling back to JSON API for {source_info['name']}...")
+                    try:
+                        search_url = f"https://www.reddit.com/search.json?q={source_info['query'].replace(' ', '%20')}&sort=relevance&t=month"
+                        s_resp = requests.get(search_url, headers=headers, timeout=15)
+                        if s_resp.status_code == 200:
+                            data = s_resp.json()
+                            for child in data.get('data', {}).get('children', []):
+                                post = child.get('data', {})
+                                scraped.append({"title": post.get('title'), "link": f"https://www.reddit.com{post.get('permalink')}"})
+                    except Exception as e:
+                        print(f"  Fallback failed: {e}")
+
                 # 转换成兼容的格式
                 for item in scraped:
                     # 对于爬虫抓到的链接，我们需要去抓取它单贴的 RSS 以获取正文和评论
