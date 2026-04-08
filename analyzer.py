@@ -10,6 +10,7 @@ FEISHU_APP_ID = os.environ.get("FEISHU_APP_ID")
 FEISHU_APP_SECRET = os.environ.get("FEISHU_APP_SECRET")
 BITABLE_APP_TOKEN = os.environ.get("BITABLE_APP_TOKEN")
 BITABLE_TABLE_ID = os.environ.get("BITABLE_TABLE_ID")
+OBSIDIAN_PATH = os.environ.get("OBSIDIAN_PATH")
 
 def get_tenant_access_token():
     url = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
@@ -99,6 +100,32 @@ def send_report_to_feishu(report_text):
     }
     requests.post(FEISHU_WEBHOOK_URL, json=content)
 
+def save_report_to_obsidian(report_text):
+    """将汇总报告保存至 Obsidian"""
+    base_dir = OBSIDIAN_PATH if (OBSIDIAN_PATH and os.path.exists(OBSIDIAN_PATH)) else "obsidian_sync"
+    if not os.path.exists(base_dir):
+        os.makedirs(base_dir, exist_ok=True)
+    
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    filename = os.path.join(base_dir, f"汇总报告-{date_str}.md")
+    
+    md_content = f"""---
+title: "Reddit 需求发现每日汇总 ({date_str})"
+date: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+tags: [reddit-summary, business-insight]
+---
+
+# 📊 Reddit 需求发现每日汇总 ({date_str})
+
+{report_text}
+"""
+    try:
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(md_content)
+        print(f"✅ 汇总报告已保存: {os.path.basename(filename)}")
+    except Exception as e:
+        print(f"❌ 保存汇总报告失败: {e}")
+
 def main():
     print("正在从多维表格拉取数据...")
     records = fetch_bitable_records(limit=30)
@@ -108,6 +135,7 @@ def main():
     print("分析完成，正在推送至飞书...")
     
     send_report_to_feishu(report)
+    save_report_to_obsidian(report)
     print("全流程结束。")
 
 if __name__ == "__main__":

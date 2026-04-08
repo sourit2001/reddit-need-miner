@@ -18,6 +18,7 @@ FEISHU_APP_ID = os.environ.get("FEISHU_APP_ID")
 FEISHU_APP_SECRET = os.environ.get("FEISHU_APP_SECRET")
 BITABLE_APP_TOKEN = os.environ.get("BITABLE_APP_TOKEN")
 BITABLE_TABLE_ID = os.environ.get("BITABLE_TABLE_ID")
+OBSIDIAN_PATH = os.environ.get("OBSIDIAN_PATH")  # 可选：本地运行时的 iCloud 路径
 
 NEED_SOURCES = [
     # 1. 实时捕获最新需求 (RSS 效率最高)
@@ -148,6 +149,55 @@ def send_to_feishu(title, link, source, translation, comments_summary, analysis,
         }
     }
     return requests.post(FEISHU_WEBHOOK_URL, json=content)
+
+def save_to_obsidian(title, link, source, translation, comments_summary, analysis, score, category, reason):
+    """将挖掘内容保存为 Obsidian 兼容的 Markdown 文件"""
+    # 优先使用环境变量路径，否则保存在项目内的 obsidian_sync 文件夹
+    base_dir = OBSIDIAN_PATH if (OBSIDIAN_PATH and os.path.exists(OBSIDIAN_PATH)) else "obsidian_sync"
+    
+    if not os.path.exists(base_dir):
+        os.makedirs(base_dir, exist_ok=True)
+    
+    # 清理文件名非法字符
+    safe_title = re.sub(r'[\\/*?:"<>|]', "", title)[:50]
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    filename = os.path.join(base_dir, f"[{score}分] {date_str}-{safe_title}.md")
+    
+    md_content = f"""---
+title: "{title}"
+source: "{source}"
+link: "{link}"
+score: {score}
+category: "{category}"
+date: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+tags: [reddit-need, {category.lower()}]
+---
+
+# {title}
+
+> **潜力评分**：{score} | **商机分类**：{category}  
+> **打分理由**：{reason}
+
+---
+
+## 📝 需求背景 (AI 翻译)
+{translation}
+
+## 💬 社区评论精华
+{comments_summary}
+
+## 💡 商业价值分析
+{analysis}
+
+---
+[🔗 查看 Reddit 原贴]({link})
+"""
+    try:
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(md_content)
+        print(f"    ✅ 已保存至笔记: {os.path.basename(filename)}")
+    except Exception as e:
+        print(f"    ❌ 保存 Obsidian 失败: {e}")
 
 def get_tenant_access_token():
     url = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
@@ -312,6 +362,7 @@ def main():
                         print(f"    🚀 高分商机 ({score})，正在推送...")
                         f_resp = send_to_feishu(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
                         b_resp = send_to_bitable(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
+                        save_to_obsidian(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
                         
                         if b_resp and b_resp.status_code != 200:
                             print(f"    Bitable synchronization error: {b_resp.text}")

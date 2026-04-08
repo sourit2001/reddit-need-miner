@@ -15,6 +15,7 @@ from main import (
     get_tenant_access_token, 
     clean_html, 
     get_post_id,
+    save_to_obsidian, # 新增
     FEISHU_APP_ID,
     FEISHU_APP_SECRET,
     AI_API_KEY
@@ -169,6 +170,7 @@ def run_deep_miner():
                     if score >= 45:
                         print(f"  📤 Syncing to Bitable (Score: {score})...")
                         b_resp = send_to_deep_bitable(kw, entry.title, entry.link, "Reddit Deep Miner", trans, comm, ans, score, cat, rs)
+                        save_to_obsidian(entry.title, entry.link, "Reddit Deep Miner", trans, comm, ans, score, cat, rs)
                         
                         if b_resp and b_resp.status_code == 200:
                             new_sent_list.append(post_id)
