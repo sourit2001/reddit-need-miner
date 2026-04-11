@@ -4,6 +4,4 @@ __pycache__/
 *.pyc
 *.xlsx
 deep_keywords.json
-sent_posts.json
-sent_deep_posts.json
 .DS_Store
