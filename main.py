@@ -360,9 +360,14 @@ def main():
                     # 仅在评分大于等于 60 时才推送，过滤无关或低质量贴子
                     if score >= 60:
                         print(f"    🚀 高分商机 ({score})，正在推送...")
-                        f_resp = send_to_feishu(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
-                        b_resp = send_to_bitable(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
-                        save_to_obsidian(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
+                        try: send_to_feishu(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
+                        except Exception as e: print(f"    ⚠️ Feishu sync failed: {e}")
+                        
+                        try: send_to_bitable(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
+                        except Exception as e: print(f"    ⚠️ Bitable sync failed: {e}")
+                        
+                        try: save_to_obsidian(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
+                        except Exception as e: print(f"    ⚠️ Obsidian sync failed: {e}")
                         
                         if b_resp and b_resp.status_code != 200:
                             print(f"    Bitable synchronization error: {b_resp.text}")

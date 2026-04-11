@@ -168,9 +168,12 @@ def run_deep_miner():
                     
                     # 深度挖掘通常长尾需求多，阈值设为 45 过滤完全无关的内容
                     if score >= 45:
-                        print(f"  📤 Syncing to Bitable (Score: {score})...")
-                        b_resp = send_to_deep_bitable(kw, entry.title, entry.link, "Reddit Deep Miner", trans, comm, ans, score, cat, rs)
-                        save_to_obsidian(entry.title, entry.link, "Reddit Deep Miner", trans, comm, ans, score, cat, rs)
+                        print(f"  📤 Syncing (Score: {score})...")
+                        try: send_to_deep_bitable(kw, entry.title, entry.link, "Reddit Deep Miner", trans, comm, ans, score, cat, rs)
+                        except Exception as e: print(f"  ⚠️ Deep Bitable sync failed: {e}")
+                        
+                        try: save_to_obsidian(entry.title, entry.link, "Reddit Deep Miner", trans, comm, ans, score, cat, rs)
+                        except Exception as e: print(f"  ⚠️ Obsidian sync failed: {e}")
                         
                         if b_resp and b_resp.status_code == 200:
                             new_sent_list.append(post_id)
