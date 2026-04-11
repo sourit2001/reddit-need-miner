@@ -115,8 +115,6 @@ date: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 tags: [reddit-summary, business-insight]
 ---
 
-# 📊 Reddit 需求发现每日汇总 ({date_str})
-
 {report_text}
 """
     try:

@@ -175,22 +175,22 @@ tags: [reddit-need, {category.lower()}]
 
 # {title}
 
-> **潜力评分**：{score} | **商机分类**：{category}  
-> **打分理由**：{reason}
+**项目**: {title}
+**理由**: {reason}
 
 ---
 
-## 📝 需求背景 (AI 翻译)
+**【译】**
 {translation}
 
-## 💬 社区评论精华
+**【评】**
 {comments_summary}
 
-## 💡 商业价值分析
+**【析】**
 {analysis}
 
 ---
-[🔗 查看 Reddit 原贴]({link})
+[🔗 原贴链接]({link})
 """
     try:
         with open(filename, "w", encoding="utf-8") as f:
