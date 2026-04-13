@@ -29,15 +29,15 @@ NEED_SOURCES = [
     {"name": "r/ai_agents (New)", "url": "https://www.reddit.com/r/ai_agents/new/.rss", "type": "rss"},
     {"name": "r/SEO (New)", "url": "https://www.reddit.com/r/SEO/new/.rss", "type": "rss"},
     {"name": "r/openclaw (New)", "url": "https://www.reddit.com/r/openclaw/new/.rss", "type": "rss"},
-    
-    # 2. 捕捉深度讨论与高热度话题 (针对性小组)
-    {"name": "r/SaaS (Hot)", "url": "https://www.reddit.com/r/SaaS/hot/.rss", "type": "rss"},
-    {"name": "r/PhotoshopRequest", "url": "https://www.reddit.com/r/PhotoshopRequest/new/.rss", "type": "rss"},
-    {"name": "r/postprocessing", "url": "https://www.reddit.com/r/postprocessing/new/.rss", "type": "rss"},
+    {"name": "r/ecommerce (New)", "url": "https://www.reddit.com/r/ecommerce/new/.rss", "type": "rss"},
+    {"name": "r/shopify (New)", "url": "https://www.reddit.com/r/shopify/new/.rss", "type": "rss"},
     
     # 3. 极速真机搜索: 解决 RSS 搜索不准的问题 (Scraper 最准确)
     {"name": "Search: Tool Request", "query": "is there a tool for", "type": "search"},
     {"name": "Search: Alternative", "query": "alternative to", "type": "search"},
+    {"name": "Search: Switch From", "query": "switch from", "type": "search"},
+    {"name": "Search: Stopped Using", "query": "stopped using", "type": "search"},
+    {"name": "Search: Automate Pain", "query": "how to automate", "type": "search"},
     {"name": "Search: Image Editing", "query": "image editing automate", "type": "search"},
     {"name": "Search: Photo Tool", "query": "tool for batch photo editing", "type": "search"}
 ]
@@ -153,10 +153,9 @@ def send_to_feishu(title, link, source, translation, comments_summary, analysis,
 def save_to_obsidian(title, link, source, translation, comments_summary, analysis, score, category, reason):
     """将挖掘内容保存为 Obsidian 兼容的 Markdown 文件"""
     # 优先使用环境变量路径，否则保存在项目内的 obsidian_sync 文件夹
-    base_dir = OBSIDIAN_PATH if (OBSIDIAN_PATH and os.path.exists(OBSIDIAN_PATH)) else "obsidian_sync"
+    base_dir = OBSIDIAN_PATH if OBSIDIAN_PATH else "obsidian_sync"
     
-    if not os.path.exists(base_dir):
-        os.makedirs(base_dir, exist_ok=True)
+    os.makedirs(base_dir, exist_ok=True)
     
     # 清理文件名非法字符
     safe_title = re.sub(r'[\\/*?:"<>|]', "", title)[:50]
