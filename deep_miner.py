@@ -131,9 +131,32 @@ def run_deep_miner():
         print(f"\n🔍 Deep Mining for: {kw}...")
         
         try:
-            # 针对每个词，改用“真机爬虫”搜索
-            # 这样能挖出和网页版一样精准的结果
             results = scrape_reddit_search(kw, time_range='month', limit=15)
+            
+            # 🔄 Fallback 1: JSON API
+            if not results:
+                print(f"  Scraper blocked. Trying JSON API for keyword: {kw}")
+                try:
+                    s_url = f"https://www.reddit.com/search.json?q={kw.replace(' ', '%20')}&sort=relevance&t=month"
+                    s_resp = requests.get(s_url, headers=headers, timeout=15)
+                    if s_resp.status_code == 200:
+                        data = s_resp.json()
+                        for child in data.get('data', {}).get('children', []):
+                            post = child.get('data', {})
+                            results.append({"title": post.get('title'), "link": f"https://www.reddit.com{post.get('permalink')}"})
+                except: pass
+
+            # 🔄 Fallback 2: RSS Search
+            if not results:
+                print(f"  Trying RSS Search for keyword: {kw}")
+                try:
+                    rss_url = f"https://www.reddit.com/search.rss?q={kw.replace(' ', '%20')}&sort=relevance&t=month"
+                    r_resp = requests.get(rss_url, headers=headers, timeout=15)
+                    if r_resp.status_code == 200:
+                        f = feedparser.parse(r_resp.content)
+                        for entry in f.entries[:10]:
+                            results.append({"title": entry.title, "link": entry.link})
+                except: pass
             
             for item in results:
                 try:
@@ -186,7 +209,7 @@ def run_deep_miner():
                         save_sent_deep(new_sent_list)
                     
                     # 避免触发频率限制
-                    time.sleep(1)
+                    time.sleep(2)
                 except Exception as e:
                     print(f"  Error processing post: {e}")
 

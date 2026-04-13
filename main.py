@@ -295,9 +295,9 @@ def main():
                 # 使用真机爬虫
                 scraped = scrape_reddit_search(source_info['query'], time_range='month', limit=8)
                 
-                # 🔄 Fallback: 如果真机爬虫失败（可能被封），尝试简单的 JSON 接口
+                # 🔄 Fallback 1: 如果真机爬虫失败，尝试简单的 JSON 接口
                 if not scraped:
-                    print(f"  Scraper returned 0 results. Falling back to JSON API for {source_info['name']}...")
+                    print(f"  Scraper blocked. Falling back to JSON API for {source_info['name']}...")
                     try:
                         search_url = f"https://www.reddit.com/search.json?q={source_info['query'].replace(' ', '%20')}&sort=relevance&t=month"
                         s_resp = requests.get(search_url, headers=headers, timeout=15)
@@ -306,8 +306,23 @@ def main():
                             for child in data.get('data', {}).get('children', []):
                                 post = child.get('data', {})
                                 scraped.append({"title": post.get('title'), "link": f"https://www.reddit.com{post.get('permalink')}"})
+                        else:
+                            print(f"  JSON API also failed (HTTP {s_resp.status_code}).")
                     except Exception as e:
-                        print(f"  Fallback failed: {e}")
+                        print(f"  JSON Fallback failed: {e}")
+
+                # 🔄 Fallback 2: 如果 JSON 也失败，尝试 Search RSS (最稳健)
+                if not scraped:
+                    print(f"  Falling back to RSS Search for {source_info['name']}...")
+                    try:
+                        rss_url = f"https://www.reddit.com/search.rss?q={source_info['query'].replace(' ', '%20')}&sort=relevance&t=month"
+                        r_resp = requests.get(rss_url, headers=headers, timeout=15)
+                        if r_resp.status_code == 200:
+                            f = feedparser.parse(r_resp.content)
+                            for entry in f.entries[:8]:
+                                scraped.append({"title": entry.title, "link": entry.link})
+                    except Exception as e:
+                        print(f"  RSS Fallback failed: {e}")
 
                 # 转换成兼容的格式
                 for item in scraped:
@@ -375,6 +390,9 @@ def main():
                         print(f"    ⏩ 评分较低 ({score})，跳过同步，记录已处理。")
                     
                     new_sent_list.append(post_id)
+            
+            # 每处理完一个源休息一下，降低被封频次
+            time.sleep(2)
         except Exception as e: 
             print(f"  Error processing source {source_info['name']}: {e}")
     save_sent_posts(new_sent_list)
