@@ -102,8 +102,11 @@ def send_report_to_feishu(report_text):
 
 def save_report_to_obsidian(report_text):
     """将汇总报告保存至 Obsidian"""
-    base_dir = OBSIDIAN_PATH if OBSIDIAN_PATH else "obsidian_sync"
-    os.makedirs(base_dir, exist_ok=True)
+    i_cloud_path = OBSIDIAN_PATH or "/Users/lizhu/Library/Mobile Documents/iCloud~md~obsidian/Documents/my ai work/obsidian_sync"
+    base_dir = i_cloud_path if os.path.isdir(os.path.dirname(i_cloud_path)) else "obsidian_sync"
+
+    if not os.path.exists(base_dir):
+        os.makedirs(base_dir, exist_ok=True)
     
     date_str = datetime.now().strftime("%Y-%m-%d")
     filename = os.path.join(base_dir, f"汇总报告-{date_str}.md")

@@ -155,10 +155,14 @@ def send_to_feishu(title, link, source, translation, comments_summary, analysis,
 
 def save_to_obsidian(title, link, source, translation, comments_summary, analysis, score, category, reason):
     """将挖掘内容保存为 Obsidian 兼容的 Markdown 文件"""
-    # 优先使用环境变量路径，否则保存在项目内的 obsidian_sync 文件夹
-    base_dir = OBSIDIAN_PATH if OBSIDIAN_PATH else "obsidian_sync"
+    # 强制优先使用 iCloud 路径，如果环境变量没拿到，探测默认 Mac 路径
+    i_cloud_path = OBSIDIAN_PATH or "/Users/lizhu/Library/Mobile Documents/iCloud~md~obsidian/Documents/my ai work/obsidian_sync"
     
-    os.makedirs(base_dir, exist_ok=True)
+    # 如果是本地运行环境（路径存在），则使用它；否则使用 GitHub Actions 默认的本地文件夹
+    base_dir = i_cloud_path if os.path.isdir(os.path.dirname(i_cloud_path)) else "obsidian_sync"
+    
+    if not os.path.exists(base_dir):
+        os.makedirs(base_dir, exist_ok=True)
     
     # 清理文件名非法字符
     safe_title = re.sub(r'[\\/*?:"<>|]', "", title)[:50]
