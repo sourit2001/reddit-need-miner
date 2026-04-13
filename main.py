@@ -30,7 +30,10 @@ NEED_SOURCES = [
     {"name": "r/SEO (New)", "url": "https://www.reddit.com/r/SEO/new/.rss", "type": "rss"},
     {"name": "r/openclaw (New)", "url": "https://www.reddit.com/r/openclaw/new/.rss", "type": "rss"},
     {"name": "r/ecommerce (New)", "url": "https://www.reddit.com/r/ecommerce/new/.rss", "type": "rss"},
+    {"name": "r/ecommerce (Hot)", "url": "https://www.reddit.com/r/ecommerce/hot/.rss", "type": "rss"},
     {"name": "r/shopify (New)", "url": "https://www.reddit.com/r/shopify/new/.rss", "type": "rss"},
+    {"name": "r/shopify (Hot)", "url": "https://www.reddit.com/r/shopify/hot/.rss", "type": "rss"},
+    {"name": "r/SaaS (Hot)", "url": "https://www.reddit.com/r/SaaS/hot/.rss", "type": "rss"},
     
     # 3. 极速真机搜索: 解决 RSS 搜索不准的问题 (Scraper 最准确)
     {"name": "Search: Tool Request", "query": "is there a tool for", "type": "search"},
@@ -284,7 +287,7 @@ def main():
                 resp = requests.get(source_info['url'], headers=headers, timeout=20)
                 if resp.status_code == 200:
                     feed = feedparser.parse(resp.content)
-                    entries_to_process = feed.entries[:8] # 取前 8 条
+                    entries_to_process = feed.entries[:25] # 增加到 25 条
                 else:
                     print(f"  Warning: HTTP {resp.status_code} for {source_info['name']}")
                     if resp.status_code == 429:
@@ -292,7 +295,7 @@ def main():
                         time.sleep(30)
             else:
                 # 使用真机爬虫
-                scraped = scrape_reddit_search(source_info['query'], time_range='month', limit=8)
+                scraped = scrape_reddit_search(source_info['query'], time_range='month', limit=15) # 增加到 15 条
                 
                 # 🔄 Fallback 1: 如果真机爬虫失败，尝试简单的 JSON 接口
                 if not scraped:
@@ -371,8 +374,8 @@ def main():
                     print(f"  Analyzing: {entry.title} (Content Len: {len(full_content)})")
                     trans, comm, ans, score, cat, rs = analyze_needs(f"Title: {entry.title}\n{full_content}\nComments: {comments}", entry.title)
                     
-                    # 仅在评分大于等于 60 时才推送，过滤无关或低质量贴子
-                    if score >= 60:
+                    # 仅在评分大于等于 55 时才推送，过滤无关或低质量贴子
+                    if score >= 55:
                         print(f"    🚀 高分商机 ({score})，正在推送...")
                         try: send_to_feishu(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
                         except Exception as e: print(f"    ⚠️ Feishu sync failed: {e}")
