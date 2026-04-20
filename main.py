@@ -380,18 +380,13 @@ def main():
                     
                     # 仅在评分大于等于 55 时才推送，过滤无关或低质量贴子
                     if score >= 55:
-                        print(f"    🚀 高分商机 ({score})，正在推送...")
+                        print(f"    🚀 高分商机 ({score})，正在推送至飞书...")
                         try: send_to_feishu(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
                         except Exception as e: print(f"    ⚠️ Feishu sync failed: {e}")
                         
                         try: send_to_bitable(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
                         except Exception as e: print(f"    ⚠️ Bitable sync failed: {e}")
-                        
-                        try: save_to_obsidian(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
-                        except Exception as e: print(f"    ⚠️ Obsidian sync failed: {e}")
-                        
-                        if b_resp and b_resp.status_code != 200:
-                            print(f"    Bitable synchronization error: {b_resp.text}")
+                        # 个人帖子不写 Obsidian，只有汇总报告（由 analyzer.py 生成）才同步
                     else:
                         print(f"    ⏩ 评分较低 ({score})，跳过同步，记录已处理。")
                     
