@@ -42,7 +42,13 @@ NEED_SOURCES = [
     {"name": "Search: Stopped Using", "query": "stopped using", "type": "search"},
     {"name": "Search: Automate Pain", "query": "how to automate", "type": "search"},
     {"name": "Search: Image Editing", "query": "image editing automate", "type": "search"},
-    {"name": "Search: Photo Tool", "query": "tool for batch photo editing", "type": "search"}
+    {"name": "Search: Photo Tool", "query": "tool for batch photo editing", "type": "search"},
+    
+    # 4. Shopify 社区垂直挖掘 (针对特定痛点)
+    {"name": "Shopify: How to", "query": "r/shopify 'How to'", "type": "search"},
+    {"name": "Shopify: Tool Request", "query": "r/shopify 'Is there a tool for'", "type": "search"},
+    {"name": "Shopify: Price Pain", "query": "r/shopify 'Too expensive'", "type": "search"},
+    {"name": "Shopify: Struggle", "query": "r/shopify 'Struggling with'", "type": "search"}
 ]
 
 DATA_FILE = "sent_posts.json"
