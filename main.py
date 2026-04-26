@@ -4,6 +4,7 @@ import os
 import json
 import hashlib
 import re
+import time
 from datetime import datetime
 from dotenv import load_dotenv
 from scraper import scrape_reddit_search
@@ -84,7 +85,7 @@ def analyze_needs(text, title, needs_translation=True):
     translation_prompt = "[翻译]\n内容\n" if needs_translation else ""
     
     payload = {
-        "model": "deepseek-chat",
+        "model": "deepseek-v4-flash",
         "messages": [
             {
                 "role": "system", 

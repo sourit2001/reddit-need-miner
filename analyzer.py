@@ -55,7 +55,7 @@ def generate_report(records):
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "deepseek-chat",
+        "model": "deepseek-v4-flash",
         "messages": [
             {
                 "role": "system", 

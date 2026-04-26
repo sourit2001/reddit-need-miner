@@ -12,7 +12,8 @@ echo "[$( date '+%Y-%m-%d %H:%M:%S' )] 开始同步汇总报告..." | tee -a "$L
 
 # 1. 进入仓库目录，拉取最新内容
 cd "$REPO_DIR"
-git pull --rebase origin main 2>&1 | tee -a "$LOG_FILE"
+git fetch origin main
+git reset --hard origin/main 2>&1 | tee -a "$LOG_FILE"
 
 # 2. 确保 Obsidian 目标目录存在
 mkdir -p "$OBSIDIAN_DIR"
