@@ -23,18 +23,18 @@ OBSIDIAN_PATH = os.environ.get("OBSIDIAN_PATH")  # 可选：本地运行时的 i
 
 NEED_SOURCES = [
     # 1. 实时捕获最新需求 (RSS 效率最高)
+    {"name": "r/ecommerce (New)", "url": "https://www.reddit.com/r/ecommerce/new/.rss", "type": "rss"},
+    {"name": "r/ecommerce (Hot)", "url": "https://www.reddit.com/r/ecommerce/hot/.rss", "type": "rss"},
+    {"name": "r/shopify (New)", "url": "https://www.reddit.com/r/shopify/new/.rss", "type": "rss"},
+    {"name": "r/shopify (Hot)", "url": "https://www.reddit.com/r/shopify/hot/.rss", "type": "rss"},
     {"name": "r/SaaS (New)", "url": "https://www.reddit.com/r/SaaS/new/.rss", "type": "rss"},
+    {"name": "r/SaaS (Hot)", "url": "https://www.reddit.com/r/SaaS/hot/.rss", "type": "rss"},
     {"name": "r/SideProject (New)", "url": "https://www.reddit.com/r/SideProject/new/.rss", "type": "rss"},
     {"name": "r/Entrepreneur (New)", "url": "https://www.reddit.com/r/Entrepreneur/new/.rss", "type": "rss"},
     {"name": "r/Startups (New)", "url": "https://www.reddit.com/r/Startups/new/.rss", "type": "rss"},
     {"name": "r/ai_agents (New)", "url": "https://www.reddit.com/r/ai_agents/new/.rss", "type": "rss"},
     {"name": "r/SEO (New)", "url": "https://www.reddit.com/r/SEO/new/.rss", "type": "rss"},
     {"name": "r/openclaw (New)", "url": "https://www.reddit.com/r/openclaw/new/.rss", "type": "rss"},
-    {"name": "r/ecommerce (New)", "url": "https://www.reddit.com/r/ecommerce/new/.rss", "type": "rss"},
-    {"name": "r/ecommerce (Hot)", "url": "https://www.reddit.com/r/ecommerce/hot/.rss", "type": "rss"},
-    {"name": "r/shopify (New)", "url": "https://www.reddit.com/r/shopify/new/.rss", "type": "rss"},
-    {"name": "r/shopify (Hot)", "url": "https://www.reddit.com/r/shopify/hot/.rss", "type": "rss"},
-    {"name": "r/SaaS (Hot)", "url": "https://www.reddit.com/r/SaaS/hot/.rss", "type": "rss"},
     
     # 3. 极速真机搜索: 解决 RSS 搜索不准的问题 (Scraper 最准确)
     {"name": "Search: Tool Request", "query": "is there a tool for", "type": "search"},
@@ -312,8 +312,18 @@ def main():
                 if not scraped:
                     print(f"  Scraper blocked. Falling back to JSON API for {source_info['name']}...")
                     try:
+                        # 使用更通用的 Bot User-Agent，Reddit 对此有时更宽容
+                        json_headers = headers.copy()
+                        json_headers['User-Agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+                        
                         search_url = f"https://www.reddit.com/search.json?q={source_info['query'].replace(' ', '%20')}&sort=relevance&t=month"
-                        s_resp = requests.get(search_url, headers=headers, timeout=15)
+                        s_resp = requests.get(search_url, headers=json_headers, timeout=15)
+                        
+                        # 如果主域 403，尝试 old.reddit.com
+                        if s_resp.status_code == 403:
+                            search_url = f"https://old.reddit.com/search.json?q={source_info['query'].replace(' ', '%20')}&sort=relevance&t=month"
+                            s_resp = requests.get(search_url, headers=headers, timeout=15)
+
                         if s_resp.status_code == 200:
                             data = s_resp.json()
                             for child in data.get('data', {}).get('children', []):
@@ -328,14 +338,21 @@ def main():
                 if not scraped:
                     print(f"  Falling back to RSS Search for {source_info['name']}...")
                     try:
+                        # RSS 接口有时也需要特定的 User-Agent
+                        rss_headers = headers.copy()
+                        rss_headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) applewebkit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
+                        
                         rss_url = f"https://www.reddit.com/search.rss?q={source_info['query'].replace(' ', '%20')}&sort=relevance&t=month"
-                        r_resp = requests.get(rss_url, headers=headers, timeout=15)
+                        r_resp = requests.get(rss_url, headers=rss_headers, timeout=15)
                         if r_resp.status_code == 200:
                             f = feedparser.parse(r_resp.content)
                             for entry in f.entries[:8]:
                                 scraped.append({"title": entry.title, "link": entry.link})
+                        else:
+                            print(f"  RSS Fallback failed (HTTP {r_resp.status_code}).")
                     except Exception as e:
                         print(f"  RSS Fallback failed: {e}")
+
 
                 # 转换成兼容的格式
                 for item in scraped:
