@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 # 从环境变量获取配置
-FEISHU_WEBHOOK_URL = os.environ.get("FEISHU_WEBHOOK")
+FEISHU_WEBHOOK_URL = os.environ.get("FEISHU_SUMMARY_WEBHOOK") or os.environ.get("FEISHU_WEBHOOK")
 AI_API_KEY = os.environ.get("AI_API_KEY")
 FEISHU_APP_ID = os.environ.get("FEISHU_APP_ID")
 FEISHU_APP_SECRET = os.environ.get("FEISHU_APP_SECRET")
