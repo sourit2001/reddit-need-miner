@@ -1,0 +1,781 @@
+[2026-04-19 14:27:38] 开始同步...
+From https://github.com/sourit2001/reddit-need-miner
+ * branch            main       -> FETCH_HEAD
+   7d18978..67ebae1  main       -> origin/main
+Updating 7d18978..67ebae1
+Fast-forward
+ ...n I Do in Lightroom to Accentuate the effec.md" |  41 ++++++++
+ ...Google search replacement since google just.md" |  32 +++++++
+ ...00\231t there a unit like eDPI for exposure.md" |  32 +++++++
+ ...] 2026-04-14-Customer not replying to email.md" |  32 +++++++
+ ...4-14-Free online access to Metasploitable 2.md" |  47 ++++++++++
+ ...026-04-14-How do I get an creem invite code.md" |  45 +++++++++
+ ... for a team to participate in Gemma 4 good .md" |  38 ++++++++
+ ...ta thread. If it's about the beta, this is .md" |  33 +++++++
+ ...NEED HELP Ask here! - ScA Daily Help Thread.md" |  82 ++++++++++++++++
+ .../[65\345\210\206] 2026-04-14-New Mod Team.md"   |  37 ++++++++
+ ...d HOA complaint that we can't park more tha.md" |  46 +++++++++
+ ... to rEcommerce - PLEASE READ and abide by t.md" |  64 +++++++++++++
+ ...Google search replacement since google just.md" |  40 ++++++++
+ ...working on my SaaS. Here\342\200\231s what .md" |  40 ++++++++
+ ...65\345\210\206] 2026-04-15-Keywords by city.md" |  35 +++++++
+ ...206] 2026-04-15-New Rule against Self-Promo.md" |  39 ++++++++
+ ...-Switched from 7900XT to 5080 - holy smokes.md" |  56 +++++++++++
+ ...] 2026-04-15-did you know you could do this.md" |  31 +++++++
+ ...doSwitch's Daily Question Thread (04152026).md" |  80 ++++++++++++++++
+ ...210\206] 2026-04-16-Intercom auto-reply app.md" |  32 +++++++
+ ...aid that someone might steal my idea if I a.md" |  39 ++++++++
+ ...6-04-16-Monthly Is there a tool for... Post.md" |  40 ++++++++
+ ...NEED HELP Ask here! - ScA Daily Help Thread.md" |  57 ++++++++++++
+ ...16-Oauth on Codex is blocked by cloud flare.md" |  37 ++++++++
+ ...t Photo Editing Software Programs to Edit Y.md" |  42 +++++++++
+ ...doSwitch's Daily Question Thread (04152026).md" |  96 +++++++++++++++++++
+ ...orming with LLMs for Startup Ideas (I will .md" |  47 ++++++++++
+ .../[65\345\210\206] 2026-04-17-End of AI Slop.md" |  36 +++++++
+ ...k for rSEO meetups and in-person events for.md" |  48 ++++++++++
+ ...6-04-17-Monthly Is there a tool for... Post.md" |  43 +++++++++
+ ...-Switched from 7900XT to 5080 - holy smokes.md" |  52 +++++++++++
+ ...else seeing a weird sales drop lately This .md" |  38 ++++++++
+ ...ve list of generative tools curated by Eyal.md" |  41 ++++++++
+ ...2026-04-18-First chat with Garry via gstack.md" |  32 +++++++
+ ...NEED HELP Ask here! - ScA Daily Help Thread.md" |  62 +++++++++++++
+ ...doSwitch's Daily Question Thread (04172026).md" |  51 ++++++++++
+ ...ssubexists Official Fap Friday Thread for A.md" |  43 +++++++++
+ ...6-04-19-Monthly Is there a tool for... Post.md" |  39 ++++++++
+ ...NEED HELP Ask here! - ScA Daily Help Thread.md" |  64 +++++++++++++
+ ...n AI cycling coach that connects to my Garm.md" |  33 +++++++
+ ...lopers, submit your product and get discove.md" |  38 ++++++++
+ ...olo dev and built a couples app that goes w.md" |  61 ++++++++++++
+ ...force a feature on users for their own good.md" |  35 +++++++
+ ...I got completely wrong about the testing ma.md" |  31 +++++++
+ ... multi vendor global markeplace for wordpre.md" |  45 +++++++++
+ ...you actually prove what software was runnin.md" |  59 ++++++++++++
+ ...206] 2026-04-15-New Rule against Self-Promo.md" |  43 +++++++++
+ ...45\210\206] 2026-04-15-Repeat customer data.md" |  36 +++++++
+ ...ike many of you, I hit a wall! I decided to.md" |  37 ++++++++
+ ... 2026-04-16-Affects of links from linkfarms.md" |  44 +++++++++
+ ...6-04-16-How can I achieve this kind of shot.md" |  52 +++++++++++
+ ...16-Need help pictures don\342\200\231t load.md" |  38 ++++++++
+ ...6-Solution of Shipping from China to Israel.md" |  33 +++++++
+ ...t Photo Editing Software Programs to Edit Y.md" |  44 +++++++++
+ ... I built an open-source app that counts you.md" |  32 +++++++
+ ...ouchTime - a simple alternative if the new .md" |  32 +++++++
+ ... 2026-04-17-Do you turn on AVS verification.md" |  33 +++++++
+ ...6-04-17-How can I achieve this kind of shot.md" |  47 ++++++++++
+ ...How far are you willing to test your agents.md" |  32 +++++++
+ ...NEED HELP Ask here! - ScA Daily Help Thread.md" |  71 ++++++++++++++
+ ...t Photo Editing Software Programs to Edit Y.md" |  44 +++++++++
+ ...rg Nintendo to cut Switch 2 production to 4.md" |  45 +++++++++
+ ...ow do I keep users on my website for longer.md" |  37 ++++++++
+ ...er is obsessed with Harry Potter, so I buil.md" |  32 +++++++
+ ... Saturday What's Going Right  April 18, 202.md" |  44 +++++++++
+ ...e acceptable ways to motivate users in expe.md" |  37 ++++++++
+ ...u got your first real Stripe payout what di.md" |  33 +++++++
+ ...old Health Insurance site Optimized but inv.md" |  36 +++++++
+ ...rking on an automation platform where devel.md" |  51 ++++++++++
+ ...a website that displays myths & legends on .md" |  38 ++++++++
+ ...ommon for investors to reach out to you on .md" |  47 ++++++++++
+ ...9-Would you pay $300 per year for this tool.md" |  38 ++++++++
+ ... built an open-source Android YouTube clien.md" |  31 +++++++
+ ...6-04-18-Monthly Is there a tool for... Post.md" |  52 +++++++++++
+ ...g a CRM that lives in telegram. (I will not.md" |  46 +++++++++
+ ...screening call actually go well The wait is.md" |  53 +++++++++++
+ ...d HOA complaint that we can't park more tha.md" |  46 +++++++++
+ ...t Photo Editing Software Programs to Edit Y.md" |  37 ++++++++
+ ...red Website Tools That Drive Traffic and Tu.md" |  32 +++++++
+ ...10\206] 2026-04-15-Any alternative for Chai.md" |  39 ++++++++
+ ...10\206] 2026-04-15-How do you keep shooting.md" |  46 +++++++++
+ ...w AI texting agent that will notify you shi.md" |  42 +++++++++
+ ...t Photo Editing Software Programs to Edit Y.md" |  43 +++++++++
+ ... a Gumroad alternative that charges 3% per .md" |  33 +++++++
+ ...own over 50% from last year; am I the only .md" |  38 ++++++++
+ ...ouchTime - a simple alternative if the new .md" |  32 +++++++
+ ...342\200\235 tutorials\342\200\246 so I made.md" |  32 +++++++
+ ...automatically finds patterns in your expens.md" |  37 ++++++++
+ ...ok competitors after cisco acquisition, wha.md" |  32 +++++++
+ ...se] I built a privacy-first, completely off.md" |  38 ++++++++
+ ...ouchTime - a simple alternative if the new .md" |  32 +++++++
+ ...ss app born from trying to rebuild after lo.md" |  38 ++++++++
+ ...10\206] 2026-04-18-Alternative to When2Meet.md" |  39 ++++++++
+ ...ck overthinking business ideas \342\200\234.md" |  43 +++++++++
+ ...arn (Almost) Anything with Space Repetition.md" |  45 +++++++++
+ ...nking of starting a Skool group around this.md" |  39 ++++++++
+ ... ISSUES - Please read our Group Rules befor.md" |  57 ++++++++++++
+ ...de + skills actually better than specialize.md" |  33 +++++++
+ ... founder stack for scaling to profitability.md" |  58 ++++++++++++
+ ... ISSUES - Please read our Group Rules befor.md" |  62 +++++++++++++
+ .../[75\345\210\206] 2026-04-18-End of AI Slop.md" |  33 +++++++
+ ...4-18-Free online access to Metasploitable 2.md" |  39 ++++++++
+ ...NEED HELP Ask here! - ScA Daily Help Thread.md" |  65 +++++++++++++
+ ...using proxies for product research or scrap.md" |  36 +++++++
+ ...ation debate \342\200\224 What would you do.md" |  70 ++++++++++++++
+ ...you tell the difference between something t.md" |  44 +++++++++
+ ...NEED HELP Ask here! - ScA Daily Help Thread.md" |  75 +++++++++++++++
+ ... ISSUES - Please read our Group Rules befor.md" |  60 ++++++++++++
+ ...4-14-SEO traffic been dropped since January.md" |  41 ++++++++
+ ...-Switched from 7900XT to 5080 - holy smokes.md" |  48 ++++++++++
+ ...206] 2026-04-14-Switching from tirz to reta.md" |  48 ++++++++++
+ ...78\345\210\206] 2026-04-14-Thanks Anthropic.md" |  42 +++++++++
+ ...t Photo Editing Software Programs to Edit Y.md" |  37 ++++++++
+ ...e Manager Pro \342\200\224 AWS S3, Dropbox,.md" |  49 ++++++++++
+ ...media posting tools\342\200\246\342\200\246.md" |  47 ++++++++++
+ ... not promote) I tracked every dollar for 6 .md" |  41 ++++++++
+ ...04-15-Any suggestions for a winter business.md" |  32 +++++++
+ ...6] 2026-04-15-How to find freelance clients.md" |  48 ++++++++++
+ ... a university student planner which uses pu.md" |  34 +++++++
+ ...10\206] 2026-04-15-Instacart buys Grocerkey.md" |  31 +++++++
+ ...0\206] 2026-04-15-Low risk order suspicious.md" |  53 +++++++++++
+ ...6-04-15-Monthly Is there a tool for... Post.md" |  38 ++++++++
+ ...bot using local LM in my M1 MacBook Pro 16g.md" |  44 +++++++++
+ ...NEED HELP Ask here! - ScA Daily Help Thread.md" |  89 ++++++++++++++++++
+ ... ISSUES - Please read our Group Rules befor.md" |  55 +++++++++++
+ ...g a Shopify store and realizing EVERYTHING .md" |  49 ++++++++++
+ ...tually makes AI agents reliable on long pro.md" |  44 +++++++++
+ ...ER promote products you don\342\200\231t be.md" |  42 +++++++++
+ ... I hated scanner apps and their ads, so I b.md" |  41 ++++++++
+ ...-16-An account for receiving online payment.md" |  48 ++++++++++
+ ...-16-How can I make this type of photography.md" |  51 ++++++++++
+ ...How do you find UGC creators for your brand.md" |  36 +++++++
+ ...d my $180K ARR voice AI startup to build an.md" |  49 ++++++++++
+ ...ce General Liability + Media Liability (Tec.md" |  45 +++++++++
+ ...Claw too complex and crashing The founder j.md" |  46 +++++++++
+ ...6-04-16-Monthly Is there a tool for... Post.md" |  36 +++++++
+ ...NEED HELP Ask here! - ScA Daily Help Thread.md" |  61 ++++++++++++
+ ...206] 2026-04-16-New Rule against Self-Promo.md" |  39 ++++++++
+ ... ISSUES - Please read our Group Rules befor.md" |  56 +++++++++++
+ ...ng customer data populating at POS checkout.md" |  35 +++++++
+ ... tools for product photos (no budget for ph.md" |  43 +++++++++
+ ...apartment because I don\342\200\231t have p.md" |  39 ++++++++
+ ...2026-04-17-How do you think I should charge.md" |  41 ++++++++
+ ...4channel check\342\200\235 because analytic.md" |  35 +++++++
+ ...NEED HELP Ask here! - ScA Daily Help Thread.md" |  76 +++++++++++++++
+ ... ISSUES - Please read our Group Rules befor.md" |  58 ++++++++++++
+ ... with Hostinger's \342\200\2341-click deplo.md" |  48 ++++++++++
+ ... to both B2B and B2C. Is there catalog soft.md" |  34 +++++++
+ ... I got tired of having 3 different subscrip.md" |  35 +++++++
+ ...doSwitch's Daily Question Thread (04172026).md" |  49 ++++++++++
+ ...ncy owner who fired me taught me more about.md" |  39 ++++++++
+ ...else seeing a weird sales drop lately This .md" |  41 ++++++++
+ ... tools for product photos (no budget for ph.md" |  38 ++++++++
+ ...e something similar to openclaw that does n.md" |  32 +++++++
+ ...I SEO Startup - Should I Seems Like Yes, Bu.md" |  42 +++++++++
+ .../[78\345\210\206] 2026-04-18-Not applying.md"   |  33 +++++++
+ ... ISSUES - Please read our Group Rules befor.md" |  54 +++++++++++
+ ...g a Next.js frontend on Salesforce Commerce.md" |  43 +++++++++
+ ...t Photo Editing Software Programs to Edit Y.md" |  43 +++++++++
+ ...6-04-18-[App]Desk Clock - StandBy & Widgets.md" |  40 ++++++++
+ ...10\206] 2026-04-19-Alternative to When2Meet.md" |  40 ++++++++
+ .../[78\345\210\206] 2026-04-19-End of AI Slop.md" |  36 +++++++
+ ...ve list of generative tools curated by Eyal.md" |  44 +++++++++
+ ...\206] 2026-04-19-Guys I need advice on this.md" |  41 ++++++++
+ ...206] 2026-04-19-How did you find your Niche.md" |  40 ++++++++
+ ... ISSUES - Please read our Group Rules befor.md" |  58 ++++++++++++
+ ...2026-04-19-Where to find good workerspeople.md" |  43 +++++++++
+ ...-04-19-Would you worry about getting copied.md" |  44 +++++++++
+ ...K \342\200\224 AI agent runtime that tracks.md" |  40 ++++++++
+ ...6-Writing a proper AI brief for my business.md" |  34 +++++++
+ ... I hated scanner apps and their ads, so I b.md" |  43 +++++++++
+ ...10\206] 2026-04-18-Alternative to When2Meet.md" |  41 ++++++++
+ ... ISSUES - Please read our Group Rules befor.md" |  58 ++++++++++++
+ ...t a production-grade AI browser control eng.md" |  43 +++++++++
+ ...d from claude to glm-5.1 for my openclaw ag.md" |  40 ++++++++
+ ...hopify + Gmail pattern i only noticed becau.md" |  35 +++++++
+ ...342\200\224 sync your X bookmarks to Notion.md" |  42 +++++++++
+ ...10\206] 2026-04-15-Instacart buys Grocerkey.md" |  32 +++++++
+ ... free Claude skill that adds share, turns H.md" |  35 +++++++
+ ...cies ever bring in an outside SEO strategis.md" |  48 ++++++++++
+ ...ce General Liability + Media Liability (Tec.md" |  42 +++++++++
+ ...ee levels of AI in B2B SaaS (or how to prev.md" |  52 +++++++++++
+ ...going on with these data labeling companies.md" |  42 +++++++++
+ .../[85\345\210\206] 2026-04-17-End of AI Slop.md" |  33 +++++++
+ ...-17-Google Maps Blocked 292 Million Reviews.md" |  43 +++++++++
+ ... you handling automated testing for your Op.md" |  44 +++++++++
+ ...ok competitors after cisco acquisition, wha.md" |  33 +++++++
+ ...ll be your first user' experiment, 3 weeks .md" |  54 +++++++++++
+ ...your workflow for influencer gifting platfo.md" |  33 +++++++
+ .../[85\345\210\206] 2026-04-18-End of AI Slop.md" |  34 +++++++
+ ...you handle version control when your team i.md" |  38 ++++++++
+ ...zed 200+ SaaS sites this month. 70% don't h.md" |  43 +++++++++
+ ...206] 2026-04-18-Is this the start of a scam.md" |  38 ++++++++
+ ...10\206] 2026-04-18-This one should be juicy.md" |  40 ++++++++
+ ... tools for product photos (no budget for ph.md" |  42 +++++++++
+ ...206] 2026-04-19-Switching from tirz to reta.md" |  49 ++++++++++
+ ... a year doing the most boring marketing str.md" |  44 +++++++++
+ ...\200\273\346\212\245\345\221\212-2026-04-14.md" |  74 +++++++++++++++
+ ...\200\273\346\212\245\345\221\212-2026-04-15.md" |  94 +++++++++++++++++++
+ ...\200\273\346\212\245\345\221\212-2026-04-16.md" |  75 +++++++++++++++
+ ...\200\273\346\212\245\345\221\212-2026-04-17.md" |  79 ++++++++++++++++
+ ...\200\273\346\212\245\345\221\212-2026-04-18.md" | 103 +++++++++++++++++++++
+ ...\200\273\346\212\245\345\221\212-2026-04-19.md" |  75 +++++++++++++++
+ sent_posts.json                                    |   2 +-
+ 204 files changed, 9084 insertions(+), 1 deletion(-)
+ create mode 100644 "obsidian_sync/[55\345\210\206] 2026-04-14-What Can I Do in Lightroom to Accentuate the effec.md"
+ create mode 100644 "obsidian_sync/[58\345\210\206] 2026-04-14-I need Google search replacement since google just.md"
+ create mode 100644 "obsidian_sync/[58\345\210\206] 2026-04-18-Why isn\342\200\231t there a unit like eDPI for exposure.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-14-Customer not replying to email.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-14-Free online access to Metasploitable 2.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-14-How do I get an creem invite code.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-14-Looking for a team to participate in Gemma 4 good .md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-14-Mega beta thread. If it's about the beta, this is .md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-14-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-14-New Mod Team.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-14-Received HOA complaint that we can't park more tha.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-14-Welcome to rEcommerce - PLEASE READ and abide by t.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-15-I need Google search replacement since google just.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-15-I\342\200\231ve spent 1 year working on my SaaS. Here\342\200\231s what .md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-15-Keywords by city.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-15-New Rule against Self-Promo.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-15-Switched from 7900XT to 5080 - holy smokes.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-15-did you know you could do this.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-15-rNintendoSwitch's Daily Question Thread (04152026).md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-16-Intercom auto-reply app.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-16-I\342\200\231m afraid that someone might steal my idea if I a.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-16-Monthly Is there a tool for... Post.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-16-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-16-Oauth on Codex is blocked by cloud flare.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-16-The Best Photo Editing Software Programs to Edit Y.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-16-rNintendoSwitch's Daily Question Thread (04152026).md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-17-Brainstorming with LLMs for Startup Ideas (I will .md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-17-End of AI Slop.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-17-Feedback for rSEO meetups and in-person events for.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-17-Monthly Is there a tool for... Post.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-17-Switched from 7900XT to 5080 - holy smokes.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-18-Anyone else seeing a weird sales drop lately This .md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-18-Extensive list of generative tools curated by Eyal.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-18-First chat with Garry via gstack.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-18-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-18-rNintendoSwitch's Daily Question Thread (04172026).md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-18-rwowthissubexists Official Fap Friday Thread for A.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-19-Monthly Is there a tool for... Post.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-19-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-14-Built an AI cycling coach that connects to my Garm.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-14-EU developers, submit your product and get discove.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-14-I'm a solo dev and built a couples app that goes w.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-14-do you force a feature on users for their own good.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-14-things I got completely wrong about the testing ma.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-15-Built a multi vendor global markeplace for wordpre.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-15-How do you actually prove what software was runnin.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-15-New Rule against Self-Promo.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-15-Repeat customer data.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-15-[App] Like many of you, I hit a wall! I decided to.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-16-Affects of links from linkfarms.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-16-How can I achieve this kind of shot.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-16-Need help pictures don\342\200\231t load.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-16-Solution of Shipping from China to Israel.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-16-The Best Photo Editing Software Programs to Edit Y.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-16-[Promo] I built an open-source app that counts you.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-16-[Web] CouchTime - a simple alternative if the new .md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-17-Do you turn on AVS verification.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-17-How can I achieve this kind of shot.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-17-How far are you willing to test your agents.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-17-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-17-The Best Photo Editing Software Programs to Edit Y.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-18-Bloomberg Nintendo to cut Switch 2 production to 4.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-18-How do I keep users on my website for longer.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-18-My sister is obsessed with Harry Potter, so I buil.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-18-Success Saturday What's Going Right  April 18, 202.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-18-What are acceptable ways to motivate users in expe.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-18-When you got your first real Stripe payout what di.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-19-30-day-old Health Insurance site Optimized but inv.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-19-I am working on an automation platform where devel.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-19-I made a website that displays myths & legends on .md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-19-Is it common for investors to reach out to you on .md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-19-Would you pay $300 per year for this tool.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-19-[APP] I built an open-source Android YouTube clien.md"
+ create mode 100644 "obsidian_sync/[70\345\210\206] 2026-04-18-Monthly Is there a tool for... Post.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-14-Building a CRM that lives in telegram. (I will not.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-14-Did my screening call actually go well The wait is.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-14-Received HOA complaint that we can't park more tha.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-14-The Best Photo Editing Software Programs to Edit Y.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-15-AI-Powered Website Tools That Drive Traffic and Tu.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-15-Any alternative for Chai.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-15-How do you keep shooting.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-15-New AI texting agent that will notify you shi.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-15-The Best Photo Editing Software Programs to Edit Y.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-16-I built a Gumroad alternative that charges 3% per .md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-16-Sales down over 50% from last year; am I the only .md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-16-[Web] CouchTime - a simple alternative if the new .md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-17-I got tired of \342\200\234easy Shopify\342\200\235 tutorials\342\200\246 so I made.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-17-My app automatically finds patterns in your expens.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-17-Smartlook competitors after cisco acquisition, wha.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-17-[Showcase] I built a privacy-first, completely off.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-17-[Web] CouchTime - a simple alternative if the new .md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-18-A fitness app born from trying to rebuild after lo.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-18-Alternative to When2Meet.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-18-I keep getting stuck overthinking business ideas \342\200\234.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-18-Learn (Almost) Anything with Space Repetition.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-18-Was thinking of starting a Skool group around this.md"
+ create mode 100644 "obsidian_sync/[75\345\210\206] 2026-04-15-ONGOING ISSUES - Please read our Group Rules befor.md"
+ create mode 100644 "obsidian_sync/[75\345\210\206] 2026-04-16-Is Claude + skills actually better than specialize.md"
+ create mode 100644 "obsidian_sync/[75\345\210\206] 2026-04-17-My 2026 founder stack for scaling to profitability.md"
+ create mode 100644 "obsidian_sync/[75\345\210\206] 2026-04-17-ONGOING ISSUES - Please read our Group Rules befor.md"
+ create mode 100644 "obsidian_sync/[75\345\210\206] 2026-04-18-End of AI Slop.md"
+ create mode 100644 "obsidian_sync/[75\345\210\206] 2026-04-18-Free online access to Metasploitable 2.md"
+ create mode 100644 "obsidian_sync/[75\345\210\206] 2026-04-18-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-14-Anyone using proxies for product research or scrap.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-14-Cannibalization debate \342\200\224 What would you do.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-14-How do you tell the difference between something t.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-14-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-14-ONGOING ISSUES - Please read our Group Rules befor.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-14-SEO traffic been dropped since January.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-14-Switched from 7900XT to 5080 - holy smokes.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-14-Switching from tirz to reta.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-14-Thanks Anthropic.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-14-The Best Photo Editing Software Programs to Edit Y.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-14-[App] Ultimate File Manager Pro \342\200\224 AWS S3, Dropbox,.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-14-connecting Shopify to social media posting tools\342\200\246\342\200\246.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-15-(i will not promote) I tracked every dollar for 6 .md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-15-Any suggestions for a winter business.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-15-How to find freelance clients.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-15-I built a university student planner which uses pu.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-15-Instacart buys Grocerkey.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-15-Low risk order suspicious.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-15-Monthly Is there a tool for... Post.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-15-My clawbot using local LM in my M1 MacBook Pro 16g.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-15-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-15-ONGOING ISSUES - Please read our Group Rules befor.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-15-Starting a Shopify store and realizing EVERYTHING .md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-15-What actually makes AI agents reliable on long pro.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-15-Why you should NEVER promote products you don\342\200\231t be.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-15-[Promo] I hated scanner apps and their ads, so I b.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-16-An account for receiving online payment.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-16-How can I make this type of photography.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-16-How do you find UGC creators for your brand.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-16-I killed my $180K ARR voice AI startup to build an.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-16-Insurance General Liability + Media Liability (Tec.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-16-Is OpenClaw too complex and crashing The founder j.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-16-Monthly Is there a tool for... Post.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-16-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-16-New Rule against Self-Promo.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-16-ONGOING ISSUES - Please read our Group Rules befor.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-16-wrong customer data populating at POS checkout.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-17-Best AI tools for product photos (no budget for ph.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-17-Got denied for an apartment because I don\342\200\231t have p.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-17-How do you think I should charge.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-17-I built a YouTube \342\200\234channel check\342\200\235 because analytic.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-17-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-17-ONGOING ISSUES - Please read our Group Rules befor.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-17-PSA Huge headaches with Hostinger's \342\200\2341-click deplo.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-17-We sell to both B2B and B2C. Is there catalog soft.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-17-[Promo] I got tired of having 3 different subscrip.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-17-rNintendoSwitch's Daily Question Thread (04172026).md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-17-the agency owner who fired me taught me more about.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-18-Anyone else seeing a weird sales drop lately This .md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-18-Best AI tools for product photos (no budget for ph.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-18-Is there something similar to openclaw that does n.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-18-Local AI SEO Startup - Should I Seems Like Yes, Bu.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-18-Not applying.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-18-ONGOING ISSUES - Please read our Group Rules befor.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-18-Slapping a Next.js frontend on Salesforce Commerce.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-18-The Best Photo Editing Software Programs to Edit Y.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-18-[App]Desk Clock - StandBy & Widgets.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-19-Alternative to When2Meet.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-19-End of AI Slop.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-19-Extensive list of generative tools curated by Eyal.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-19-Guys I need advice on this.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-19-How did you find your Niche.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-19-ONGOING ISSUES - Please read our Group Rules befor.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-19-Where to find good workerspeople.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-19-Would you worry about getting copied.md"
+ create mode 100644 "obsidian_sync/[82\345\210\206] 2026-04-15-Show my project ARK \342\200\224 AI agent runtime that tracks.md"
+ create mode 100644 "obsidian_sync/[82\345\210\206] 2026-04-16-Writing a proper AI brief for my business.md"
+ create mode 100644 "obsidian_sync/[82\345\210\206] 2026-04-16-[Promo] I hated scanner apps and their ads, so I b.md"
+ create mode 100644 "obsidian_sync/[82\345\210\206] 2026-04-18-Alternative to When2Meet.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-14-ONGOING ISSUES - Please read our Group Rules befor.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-14-We built a production-grade AI browser control eng.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-14-switched from claude to glm-5.1 for my openclaw ag.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-14-weird Shopify + Gmail pattern i only noticed becau.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-15-I built X2Notion \342\200\224 sync your X bookmarks to Notion.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-15-Instacart buys Grocerkey.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-16-Built a free Claude skill that adds share, turns H.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-16-Do agencies ever bring in an outside SEO strategis.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-16-Insurance General Liability + Media Liability (Tec.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-16-The three levels of AI in B2B SaaS (or how to prev.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-16-What\342\200\231s going on with these data labeling companies.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-17-End of AI Slop.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-17-Google Maps Blocked 292 Million Reviews.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-17-How are you handling automated testing for your Op.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-17-Smartlook competitors after cisco acquisition, wha.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-17-The 'I'll be your first user' experiment, 3 weeks .md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-17-What's your workflow for influencer gifting platfo.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-18-End of AI Slop.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-18-How do you handle version control when your team i.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-18-I analyzed 200+ SaaS sites this month. 70% don't h.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-18-Is this the start of a scam.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-18-This one should be juicy.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-19-Best AI tools for product photos (no budget for ph.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-19-Switching from tirz to reta.md"
+ create mode 100644 "obsidian_sync/[88\345\210\206] 2026-04-17-I spent a year doing the most boring marketing str.md"
+ create mode 100644 "obsidian_sync/\346\261\207\346\200\273\346\212\245\345\221\212-2026-04-14.md"
+ create mode 100644 "obsidian_sync/\346\261\207\346\200\273\346\212\245\345\221\212-2026-04-15.md"
+ create mode 100644 "obsidian_sync/\346\261\207\346\200\273\346\212\245\345\221\212-2026-04-16.md"
+ create mode 100644 "obsidian_sync/\346\261\207\346\200\273\346\212\245\345\221\212-2026-04-17.md"
+ create mode 100644 "obsidian_sync/\346\261\207\346\200\273\346\212\245\345\221\212-2026-04-18.md"
+ create mode 100644 "obsidian_sync/\346\261\207\346\200\273\346\212\245\345\221\212-2026-04-19.md"
+  ✅ 已同步: [55分] 2026-04-14-What Can I Do in Lightroom to Accentuate the effec.md
+  ✅ 已同步: [58分] 2026-04-14-I need Google search replacement since google just.md
+  ✅ 已同步: [58分] 2026-04-18-Why isn’t there a unit like eDPI for exposure.md
+  ✅ 已同步: [62分] 2026-04-13-Any non banable alternatives to Steam Tools.md
+  ✅ 已同步: [62分] 2026-04-13-Pay slip.md
+  ✅ 已同步: [65分] 2026-04-13-Building SaaS is easy compared to distribution.md
+  ✅ 已同步: [65分] 2026-04-13-Our Longstanding “No Politics” Rule remains unchan.md
+  ✅ 已同步: [65分] 2026-04-13-Potential pilot customer went cold after showing s.md
+  ✅ 已同步: [65分] 2026-04-13-Sell me your Saas in one sentence!.md
+  ✅ 已同步: [65分] 2026-04-13-The Best Photo Editing Software Programs to Edit Y.md
+  ✅ 已同步: [65分] 2026-04-13-beforeafter.md
+  ✅ 已同步: [65分] 2026-04-14-Customer not replying to email.md
+  ✅ 已同步: [65分] 2026-04-14-Free online access to Metasploitable 2.md
+  ✅ 已同步: [65分] 2026-04-14-How do I get an creem invite code.md
+  ✅ 已同步: [65分] 2026-04-14-Looking for a team to participate in Gemma 4 good .md
+  ✅ 已同步: [65分] 2026-04-14-Mega beta thread. If it's about the beta, this is .md
+  ✅ 已同步: [65分] 2026-04-14-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md
+  ✅ 已同步: [65分] 2026-04-14-New Mod Team.md
+  ✅ 已同步: [65分] 2026-04-14-Received HOA complaint that we can't park more tha.md
+  ✅ 已同步: [65分] 2026-04-14-Welcome to rEcommerce - PLEASE READ and abide by t.md
+  ✅ 已同步: [65分] 2026-04-15-I need Google search replacement since google just.md
+  ✅ 已同步: [65分] 2026-04-15-I’ve spent 1 year working on my SaaS. Here’s what .md
+  ✅ 已同步: [65分] 2026-04-15-Keywords by city.md
+  ✅ 已同步: [65分] 2026-04-15-New Rule against Self-Promo.md
+  ✅ 已同步: [65分] 2026-04-15-Switched from 7900XT to 5080 - holy smokes.md
+  ✅ 已同步: [65分] 2026-04-15-did you know you could do this.md
+  ✅ 已同步: [65分] 2026-04-15-rNintendoSwitch's Daily Question Thread (04152026).md
+  ✅ 已同步: [65分] 2026-04-16-Intercom auto-reply app.md
+  ✅ 已同步: [65分] 2026-04-16-I’m afraid that someone might steal my idea if I a.md
+  ✅ 已同步: [65分] 2026-04-16-Monthly Is there a tool for... Post.md
+  ✅ 已同步: [65分] 2026-04-16-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md
+  ✅ 已同步: [65分] 2026-04-16-Oauth on Codex is blocked by cloud flare.md
+  ✅ 已同步: [65分] 2026-04-16-The Best Photo Editing Software Programs to Edit Y.md
+  ✅ 已同步: [65分] 2026-04-16-rNintendoSwitch's Daily Question Thread (04152026).md
+  ✅ 已同步: [65分] 2026-04-17-Brainstorming with LLMs for Startup Ideas (I will .md
+  ✅ 已同步: [65分] 2026-04-17-End of AI Slop.md
+  ✅ 已同步: [65分] 2026-04-17-Feedback for rSEO meetups and in-person events for.md
+  ✅ 已同步: [65分] 2026-04-17-Monthly Is there a tool for... Post.md
+  ✅ 已同步: [65分] 2026-04-17-Switched from 7900XT to 5080 - holy smokes.md
+  ✅ 已同步: [65分] 2026-04-18-Anyone else seeing a weird sales drop lately This .md
+  ✅ 已同步: [65分] 2026-04-18-Extensive list of generative tools curated by Eyal.md
+  ✅ 已同步: [65分] 2026-04-18-First chat with Garry via gstack.md
+  ✅ 已同步: [65分] 2026-04-18-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md
+  ✅ 已同步: [65分] 2026-04-18-rNintendoSwitch's Daily Question Thread (04172026).md
+  ✅ 已同步: [65分] 2026-04-18-rwowthissubexists Official Fap Friday Thread for A.md
+  ✅ 已同步: [65分] 2026-04-19-Monthly Is there a tool for... Post.md
+  ✅ 已同步: [65分] 2026-04-19-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md
+  ✅ 已同步: [68分] 2026-04-13-Can someone make a cute merged photo.md
+  ✅ 已同步: [68分] 2026-04-13-EU developers, submit your product and get discove.md
+  ✅ 已同步: [68分] 2026-04-13-Monday mentorship ask anything  April 13, 2026.md
+  ✅ 已同步: [68分] 2026-04-13-My OpenClaw bot died on April 4. I got it back ins.md
+  ✅ 已同步: [68分] 2026-04-13-Traffic from bing but not google.md
+  ✅ 已同步: [68分] 2026-04-13-What would you do with $40k Azure credits expiring.md
+  ✅ 已同步: [68分] 2026-04-14-Built an AI cycling coach that connects to my Garm.md
+  ✅ 已同步: [68分] 2026-04-14-EU developers, submit your product and get discove.md
+  ✅ 已同步: [68分] 2026-04-14-I'm a solo dev and built a couples app that goes w.md
+  ✅ 已同步: [68分] 2026-04-14-do you force a feature on users for their own good.md
+  ✅ 已同步: [68分] 2026-04-14-things I got completely wrong about the testing ma.md
+  ✅ 已同步: [68分] 2026-04-15-Built a multi vendor global markeplace for wordpre.md
+  ✅ 已同步: [68分] 2026-04-15-How do you actually prove what software was runnin.md
+  ✅ 已同步: [68分] 2026-04-15-New Rule against Self-Promo.md
+  ✅ 已同步: [68分] 2026-04-15-Repeat customer data.md
+  ✅ 已同步: [68分] 2026-04-15-[App] Like many of you, I hit a wall! I decided to.md
+  ✅ 已同步: [68分] 2026-04-16-Affects of links from linkfarms.md
+  ✅ 已同步: [68分] 2026-04-16-How can I achieve this kind of shot.md
+  ✅ 已同步: [68分] 2026-04-16-Need help pictures don’t load.md
+  ✅ 已同步: [68分] 2026-04-16-Solution of Shipping from China to Israel.md
+  ✅ 已同步: [68分] 2026-04-16-The Best Photo Editing Software Programs to Edit Y.md
+  ✅ 已同步: [68分] 2026-04-16-[Promo] I built an open-source app that counts you.md
+  ✅ 已同步: [68分] 2026-04-16-[Web] CouchTime - a simple alternative if the new .md
+  ✅ 已同步: [68分] 2026-04-17-Do you turn on AVS verification.md
+  ✅ 已同步: [68分] 2026-04-17-How can I achieve this kind of shot.md
+  ✅ 已同步: [68分] 2026-04-17-How far are you willing to test your agents.md
+  ✅ 已同步: [68分] 2026-04-17-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md
+  ✅ 已同步: [68分] 2026-04-17-The Best Photo Editing Software Programs to Edit Y.md
+  ✅ 已同步: [68分] 2026-04-18-Bloomberg Nintendo to cut Switch 2 production to 4.md
+  ✅ 已同步: [68分] 2026-04-18-How do I keep users on my website for longer.md
+  ✅ 已同步: [68分] 2026-04-18-My sister is obsessed with Harry Potter, so I buil.md
+  ✅ 已同步: [68分] 2026-04-18-Success Saturday What's Going Right  April 18, 202.md
+  ✅ 已同步: [68分] 2026-04-18-What are acceptable ways to motivate users in expe.md
+  ✅ 已同步: [68分] 2026-04-18-When you got your first real Stripe payout what di.md
+  ✅ 已同步: [68分] 2026-04-19-30-day-old Health Insurance site Optimized but inv.md
+  ✅ 已同步: [68分] 2026-04-19-I am working on an automation platform where devel.md
+  ✅ 已同步: [68分] 2026-04-19-I made a website that displays myths & legends on .md
+  ✅ 已同步: [68分] 2026-04-19-Is it common for investors to reach out to you on .md
+  ✅ 已同步: [68分] 2026-04-19-Would you pay $300 per year for this tool.md
+  ✅ 已同步: [68分] 2026-04-19-[APP] I built an open-source Android YouTube clien.md
+  ✅ 已同步: [70分] 2026-04-18-Monthly Is there a tool for... Post.md
+  ✅ 已同步: [72分] 2026-04-13-Google business profile.md
+  ✅ 已同步: [72分] 2026-04-13-Switched from 7900XT to 5080 - holy smokes.md
+  ✅ 已同步: [72分] 2026-04-13-The Best Photo Editing Software Programs to Edit Y.md
+  ✅ 已同步: [72分] 2026-04-14-Building a CRM that lives in telegram. (I will not.md
+  ✅ 已同步: [72分] 2026-04-14-Did my screening call actually go well The wait is.md
+  ✅ 已同步: [72分] 2026-04-14-Received HOA complaint that we can't park more tha.md
+  ✅ 已同步: [72分] 2026-04-14-The Best Photo Editing Software Programs to Edit Y.md
+  ✅ 已同步: [72分] 2026-04-15-AI-Powered Website Tools That Drive Traffic and Tu.md
+  ✅ 已同步: [72分] 2026-04-15-Any alternative for Chai.md
+  ✅ 已同步: [72分] 2026-04-15-How do you keep shooting.md
+  ✅ 已同步: [72分] 2026-04-15-New AI texting agent that will notify you shi.md
+  ✅ 已同步: [72分] 2026-04-15-The Best Photo Editing Software Programs to Edit Y.md
+  ✅ 已同步: [72分] 2026-04-16-I built a Gumroad alternative that charges 3% per .md
+  ✅ 已同步: [72分] 2026-04-16-Sales down over 50% from last year; am I the only .md
+  ✅ 已同步: [72分] 2026-04-16-[Web] CouchTime - a simple alternative if the new .md
+  ✅ 已同步: [72分] 2026-04-17-I got tired of “easy Shopify” tutorials… so I made.md
+  ✅ 已同步: [72分] 2026-04-17-My app automatically finds patterns in your expens.md
+  ✅ 已同步: [72分] 2026-04-17-Smartlook competitors after cisco acquisition, wha.md
+  ✅ 已同步: [72分] 2026-04-17-[Showcase] I built a privacy-first, completely off.md
+  ✅ 已同步: [72分] 2026-04-17-[Web] CouchTime - a simple alternative if the new .md
+  ✅ 已同步: [72分] 2026-04-18-A fitness app born from trying to rebuild after lo.md
+  ✅ 已同步: [72分] 2026-04-18-Alternative to When2Meet.md
+  ✅ 已同步: [72分] 2026-04-18-I keep getting stuck overthinking business ideas “.md
+  ✅ 已同步: [72分] 2026-04-18-Learn (Almost) Anything with Space Repetition.md
+  ✅ 已同步: [72分] 2026-04-18-Was thinking of starting a Skool group around this.md
+  ✅ 已同步: [75分] 2026-04-13-Free online access to Metasploitable 2.md
+  ✅ 已同步: [75分] 2026-04-13-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md
+  ✅ 已同步: [75分] 2026-04-13-Received HOA complaint that we can't park more tha.md
+  ✅ 已同步: [75分] 2026-04-15-ONGOING ISSUES - Please read our Group Rules befor.md
+  ✅ 已同步: [75分] 2026-04-16-Is Claude + skills actually better than specialize.md
+  ✅ 已同步: [75分] 2026-04-17-My 2026 founder stack for scaling to profitability.md
+  ✅ 已同步: [75分] 2026-04-17-ONGOING ISSUES - Please read our Group Rules befor.md
+  ✅ 已同步: [75分] 2026-04-18-End of AI Slop.md
+  ✅ 已同步: [75分] 2026-04-18-Free online access to Metasploitable 2.md
+  ✅ 已同步: [75分] 2026-04-18-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md
+  ✅ 已同步: [78分] 2026-04-13-April DeveloperTool creator thread. Building or bu.md
+  ✅ 已同步: [78分] 2026-04-13-Building SaaS is easy compared to distribution.md
+  ✅ 已同步: [78分] 2026-04-13-Built a CLI that gives AI agents semantically mean.md
+  ✅ 已同步: [78分] 2026-04-13-How to make SEO in 10yo site.md
+  ✅ 已同步: [78分] 2026-04-13-I can finally screen-share my SQL client without l.md
+  ✅ 已同步: [78分] 2026-04-13-Is there a way to do in-store pickup for more than.md
+  ✅ 已同步: [78分] 2026-04-13-Launching my online store soon. What mistakes coul.md
+  ✅ 已同步: [78分] 2026-04-13-Openclaw skills are way deeper than I thought, som.md
+  ✅ 已同步: [78分] 2026-04-14-Anyone using proxies for product research or scrap.md
+  ✅ 已同步: [78分] 2026-04-14-Cannibalization debate — What would you do.md
+  ✅ 已同步: [78分] 2026-04-14-How do you tell the difference between something t.md
+  ✅ 已同步: [78分] 2026-04-14-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md
+  ✅ 已同步: [78分] 2026-04-14-ONGOING ISSUES - Please read our Group Rules befor.md
+  ✅ 已同步: [78分] 2026-04-14-SEO traffic been dropped since January.md
+  ✅ 已同步: [78分] 2026-04-14-Switched from 7900XT to 5080 - holy smokes.md
+  ✅ 已同步: [78分] 2026-04-14-Switching from tirz to reta.md
+  ✅ 已同步: [78分] 2026-04-14-Thanks Anthropic.md
+  ✅ 已同步: [78分] 2026-04-14-The Best Photo Editing Software Programs to Edit Y.md
+  ✅ 已同步: [78分] 2026-04-14-[App] Ultimate File Manager Pro — AWS S3, Dropbox,.md
+  ✅ 已同步: [78分] 2026-04-14-connecting Shopify to social media posting tools…….md
+  ✅ 已同步: [78分] 2026-04-15-(i will not promote) I tracked every dollar for 6 .md
+  ✅ 已同步: [78分] 2026-04-15-Any suggestions for a winter business.md
+  ✅ 已同步: [78分] 2026-04-15-How to find freelance clients.md
+  ✅ 已同步: [78分] 2026-04-15-I built a university student planner which uses pu.md
+  ✅ 已同步: [78分] 2026-04-15-Instacart buys Grocerkey.md
+  ✅ 已同步: [78分] 2026-04-15-Low risk order suspicious.md
+  ✅ 已同步: [78分] 2026-04-15-Monthly Is there a tool for... Post.md
+  ✅ 已同步: [78分] 2026-04-15-My clawbot using local LM in my M1 MacBook Pro 16g.md
+  ✅ 已同步: [78分] 2026-04-15-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md
+  ✅ 已同步: [78分] 2026-04-15-ONGOING ISSUES - Please read our Group Rules befor.md
+  ✅ 已同步: [78分] 2026-04-15-Starting a Shopify store and realizing EVERYTHING .md
+  ✅ 已同步: [78分] 2026-04-15-What actually makes AI agents reliable on long pro.md
+  ✅ 已同步: [78分] 2026-04-15-Why you should NEVER promote products you don’t be.md
+  ✅ 已同步: [78分] 2026-04-15-[Promo] I hated scanner apps and their ads, so I b.md
+  ✅ 已同步: [78分] 2026-04-16-An account for receiving online payment.md
+  ✅ 已同步: [78分] 2026-04-16-How can I make this type of photography.md
+  ✅ 已同步: [78分] 2026-04-16-How do you find UGC creators for your brand.md
+  ✅ 已同步: [78分] 2026-04-16-I killed my $180K ARR voice AI startup to build an.md
+  ✅ 已同步: [78分] 2026-04-16-Insurance General Liability + Media Liability (Tec.md
+  ✅ 已同步: [78分] 2026-04-16-Is OpenClaw too complex and crashing The founder j.md
+  ✅ 已同步: [78分] 2026-04-16-Monthly Is there a tool for... Post.md
+  ✅ 已同步: [78分] 2026-04-16-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md
+  ✅ 已同步: [78分] 2026-04-16-New Rule against Self-Promo.md
+  ✅ 已同步: [78分] 2026-04-16-ONGOING ISSUES - Please read our Group Rules befor.md
+  ✅ 已同步: [78分] 2026-04-16-wrong customer data populating at POS checkout.md
+  ✅ 已同步: [78分] 2026-04-17-Best AI tools for product photos (no budget for ph.md
+  ✅ 已同步: [78分] 2026-04-17-Got denied for an apartment because I don’t have p.md
+  ✅ 已同步: [78分] 2026-04-17-How do you think I should charge.md
+  ✅ 已同步: [78分] 2026-04-17-I built a YouTube “channel check” because analytic.md
+  ✅ 已同步: [78分] 2026-04-17-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md
+  ✅ 已同步: [78分] 2026-04-17-ONGOING ISSUES - Please read our Group Rules befor.md
+  ✅ 已同步: [78分] 2026-04-17-PSA Huge headaches with Hostinger's “1-click deplo.md
+  ✅ 已同步: [78分] 2026-04-17-We sell to both B2B and B2C. Is there catalog soft.md
+  ✅ 已同步: [78分] 2026-04-17-[Promo] I got tired of having 3 different subscrip.md
+  ✅ 已同步: [78分] 2026-04-17-rNintendoSwitch's Daily Question Thread (04172026).md
+  ✅ 已同步: [78分] 2026-04-17-the agency owner who fired me taught me more about.md
+  ✅ 已同步: [78分] 2026-04-18-Anyone else seeing a weird sales drop lately This .md
+  ✅ 已同步: [78分] 2026-04-18-Best AI tools for product photos (no budget for ph.md
+  ✅ 已同步: [78分] 2026-04-18-Is there something similar to openclaw that does n.md
+  ✅ 已同步: [78分] 2026-04-18-Local AI SEO Startup - Should I Seems Like Yes, Bu.md
+  ✅ 已同步: [78分] 2026-04-18-Not applying.md
+  ✅ 已同步: [78分] 2026-04-18-ONGOING ISSUES - Please read our Group Rules befor.md
+  ✅ 已同步: [78分] 2026-04-18-Slapping a Next.js frontend on Salesforce Commerce.md
+  ✅ 已同步: [78分] 2026-04-18-The Best Photo Editing Software Programs to Edit Y.md
+  ✅ 已同步: [78分] 2026-04-18-[App]Desk Clock - StandBy & Widgets.md
+  ✅ 已同步: [78分] 2026-04-19-Alternative to When2Meet.md
+  ✅ 已同步: [78分] 2026-04-19-End of AI Slop.md
+  ✅ 已同步: [78分] 2026-04-19-Extensive list of generative tools curated by Eyal.md
+  ✅ 已同步: [78分] 2026-04-19-Guys I need advice on this.md
+  ✅ 已同步: [78分] 2026-04-19-How did you find your Niche.md
+  ✅ 已同步: [78分] 2026-04-19-ONGOING ISSUES - Please read our Group Rules befor.md
+  ✅ 已同步: [78分] 2026-04-19-Where to find good workerspeople.md
+  ✅ 已同步: [78分] 2026-04-19-Would you worry about getting copied.md
+  ✅ 已同步: [82分] 2026-04-15-Show my project ARK — AI agent runtime that tracks.md
+  ✅ 已同步: [82分] 2026-04-16-Writing a proper AI brief for my business.md
+  ✅ 已同步: [82分] 2026-04-16-[Promo] I hated scanner apps and their ads, so I b.md
+  ✅ 已同步: [82分] 2026-04-18-Alternative to When2Meet.md
+  ✅ 已同步: [85分] 2026-04-13-Can I pay anyone for OpenClaw consulting.md
+  ✅ 已同步: [85分] 2026-04-13-I built a free Claude skill that studies your busi.md
+  ✅ 已同步: [85分] 2026-04-14-ONGOING ISSUES - Please read our Group Rules befor.md
+  ✅ 已同步: [85分] 2026-04-14-We built a production-grade AI browser control eng.md
+  ✅ 已同步: [85分] 2026-04-14-switched from claude to glm-5.1 for my openclaw ag.md
+  ✅ 已同步: [85分] 2026-04-14-weird Shopify + Gmail pattern i only noticed becau.md
+  ✅ 已同步: [85分] 2026-04-15-I built X2Notion — sync your X bookmarks to Notion.md
+  ✅ 已同步: [85分] 2026-04-15-Instacart buys Grocerkey.md
+  ✅ 已同步: [85分] 2026-04-16-Built a free Claude skill that adds share, turns H.md
+  ✅ 已同步: [85分] 2026-04-16-Do agencies ever bring in an outside SEO strategis.md
+  ✅ 已同步: [85分] 2026-04-16-Insurance General Liability + Media Liability (Tec.md
+  ✅ 已同步: [85分] 2026-04-16-The three levels of AI in B2B SaaS (or how to prev.md
+  ✅ 已同步: [85分] 2026-04-16-What’s going on with these data labeling companies.md
+  ✅ 已同步: [85分] 2026-04-17-End of AI Slop.md
+  ✅ 已同步: [85分] 2026-04-17-Google Maps Blocked 292 Million Reviews.md
+  ✅ 已同步: [85分] 2026-04-17-How are you handling automated testing for your Op.md
+  ✅ 已同步: [85分] 2026-04-17-Smartlook competitors after cisco acquisition, wha.md
+  ✅ 已同步: [85分] 2026-04-17-The 'I'll be your first user' experiment, 3 weeks .md
+  ✅ 已同步: [85分] 2026-04-17-What's your workflow for influencer gifting platfo.md
+  ✅ 已同步: [85分] 2026-04-18-End of AI Slop.md
+  ✅ 已同步: [85分] 2026-04-18-How do you handle version control when your team i.md
+  ✅ 已同步: [85分] 2026-04-18-I analyzed 200+ SaaS sites this month. 70% don't h.md
+  ✅ 已同步: [85分] 2026-04-18-Is this the start of a scam.md
+  ✅ 已同步: [85分] 2026-04-18-This one should be juicy.md
+  ✅ 已同步: [85分] 2026-04-19-Best AI tools for product photos (no budget for ph.md
+  ✅ 已同步: [85分] 2026-04-19-Switching from tirz to reta.md
+  ✅ 已同步: [88分] 2026-04-17-I spent a year doing the most boring marketing str.md
+  ✅ 已同步: 汇总报告-2026-04-13.md
+  ✅ 已同步: 汇总报告-2026-04-14.md
+  ✅ 已同步: 汇总报告-2026-04-15.md
+  ✅ 已同步: 汇总报告-2026-04-16.md
+  ✅ 已同步: 汇总报告-2026-04-17.md
+  ✅ 已同步: 汇总报告-2026-04-18.md
+  ✅ 已同步: 汇总报告-2026-04-19.md
+  🎉 共同步了 234 个新文件
+[2026-04-19 14:27:43] 同步完成
+[2026-04-20 14:47:34] 开始同步汇总报告...
+error: cannot pull with rebase: You have unstaged changes.
+error: Please commit or stash them.
+  ℹ️  没有新的汇总报告需要同步
+[2026-04-20 14:47:34] 同步完成
+[2026-04-20 14:47:44] 开始同步汇总报告...
+From https://github.com/sourit2001/reddit-need-miner
+ * branch            main       -> FETCH_HEAD
+   67ebae1..b97e671  main       -> origin/main
+Updating 67ebae1..b97e671
+Fast-forward
+ ...04-19-Trying to hear voices over loud music.md" | 37 +++++++++
+ ...4-19-Free online access to Metasploitable 2.md" | 34 +++++++++
+ ...things I wish I knew when starting my 1st s.md" | 37 +++++++++
+ .../[65\345\210\206] 2026-04-20-End of AI Slop.md" | 34 +++++++++
+ ...tographers here sell their art using ads wi.md" | 38 ++++++++++
+ ...ve list of generative tools curated by Eyal.md" | 37 +++++++++
+ ...206] 2026-04-19-Switching from tirz to reta.md" | 48 ++++++++++++
+ ...\345\210\206] 2026-04-19-What are you doing.md" | 37 +++++++++
+ ... browser-based P2P file transfer because I .md" | 45 +++++++++++
+ ...opify theme that has a good product side ba.md" | 42 +++++++++++
+ ...20-How to edit photos like Geoffrey Goddard.md" | 39 ++++++++++
+ ...t roadmap for developers who can code but h.md" | 60 +++++++++++++++
+ ...6-04-19-Any good alternatives to reddit app.md" | 40 ++++++++++
+ ...ed a custom rave clothing store (NikeID of .md" | 40 ++++++++++
+ ...nking of moving to Austin to be around a st.md" | 39 ++++++++++
+ ...6-04-20-Monthly Is there a tool for... Post.md" | 36 +++++++++
+ ... ISSUES - Please read our Group Rules befor.md" | 63 ++++++++++++++++
+ ...6-04-19-Monthly Is there a tool for... Post.md" | 36 +++++++++
+ ...NEED HELP Ask here! - ScA Daily Help Thread.md" | 74 ++++++++++++++++++
+ ...06] 2026-04-19-New South Wales SEO Question.md" | 49 ++++++++++++
+ ... ISSUES - Please read our Group Rules befor.md" | 54 +++++++-------
+ ... a software agency and a SaaS at the same t.md" | 43 +++++++++++
+ ...one actually seen SEO or sales lift from AI.md" | 46 ++++++++++++
+ ...6-04-20-Any good alternatives to reddit app.md" | 39 ++++++++++
+ ...g the most curated community of verified fo.md" | 36 +++++++++
+ ...C Adopter. Now Managing Memory and Perceive.md" | 45 +++++++++++
+ ...NEED HELP Ask here! - ScA Daily Help Thread.md" | 84 +++++++++++++++++++++
+ ...206] 2026-04-20-Switching from tirz to reta.md" | 48 ++++++++++++
+ ...romo] Open-Source CircleToSearch with multi.md" | 39 ++++++++++
+ .../[82\345\210\206] 2026-04-19-End of AI Slop.md" | 36 +++++++++
+ ...he agent lives matters more than how smart .md" | 35 +++++++++
+ ...tually happens when an AI agent gets a mali.md" | 82 ++++++++++++++++++++
+ ...chologie des Schenkens Warum wir meistens d.md" | 51 +++++++++++++
+ ...other job because I forgot to follow up wha.md" | 46 ++++++++++++
+ ... a project site on March 8 50k+ impressions.md" | 76 +++++++++++++++++++
+ ...\200\273\346\212\245\345\221\212-2026-04-20.md" | 87 ++++++++++++++++++++++
+ sent_posts.json                                    |  2 +-
+ 37 files changed, 1688 insertions(+), 26 deletions(-)
+ create mode 100644 "obsidian_sync/[58\345\210\206] 2026-04-19-Trying to hear voices over loud music.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-19-Free online access to Metasploitable 2.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-19-The 10 things I wish I knew when starting my 1st s.md"
+ create mode 100644 "obsidian_sync/[65\345\210\206] 2026-04-20-End of AI Slop.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-19-Any photographers here sell their art using ads wi.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-19-Extensive list of generative tools curated by Eyal.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-19-Switching from tirz to reta.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-19-What are you doing.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-20-Built a browser-based P2P file transfer because I .md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-20-Free shopify theme that has a good product side ba.md"
+ create mode 100644 "obsidian_sync/[68\345\210\206] 2026-04-20-How to edit photos like Geoffrey Goddard.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-19-AI agent roadmap for developers who can code but h.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-19-Any good alternatives to reddit app.md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-20-I created a custom rave clothing store (NikeID of .md"
+ create mode 100644 "obsidian_sync/[72\345\210\206] 2026-04-20-I'm thinking of moving to Austin to be around a st.md"
+ create mode 100644 "obsidian_sync/[75\345\210\206] 2026-04-20-Monthly Is there a tool for... Post.md"
+ create mode 100644 "obsidian_sync/[75\345\210\206] 2026-04-20-ONGOING ISSUES - Please read our Group Rules befor.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-19-Monthly Is there a tool for... Post.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-19-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-19-New South Wales SEO Question.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-19-Running a software agency and a SaaS at the same t.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-19-has anyone actually seen SEO or sales lift from AI.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-20-Any good alternatives to reddit app.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-20-Building the most curated community of verified fo.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-20-Early OC Adopter. Now Managing Memory and Perceive.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-20-NEW OR NEED HELP Ask here! - ScA Daily Help Thread.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-20-Switching from tirz to reta.md"
+ create mode 100644 "obsidian_sync/[78\345\210\206] 2026-04-20-[App][Promo] Open-Source CircleToSearch with multi.md"
+ create mode 100644 "obsidian_sync/[82\345\210\206] 2026-04-19-End of AI Slop.md"
+ create mode 100644 "obsidian_sync/[82\345\210\206] 2026-04-19-Where the agent lives matters more than how smart .md"
+ create mode 100644 "obsidian_sync/[82\345\210\206] 2026-04-20-What actually happens when an AI agent gets a mali.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-19-Die Psychologie des Schenkens Warum wir meistens d.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-20-Lost another job because I forgot to follow up wha.md"
+ create mode 100644 "obsidian_sync/[85\345\210\206] 2026-04-20-Started a project site on March 8 50k+ impressions.md"
+ create mode 100644 "obsidian_sync/\346\261\207\346\200\273\346\212\245\345\221\212-2026-04-20.md"
+  ✅ 已同步: 汇总报告-2026-04-20.md
+  🎉 共同步了 1 份汇总报告
+[2026-04-20 14:47:47] 同步完成
+[2026-05-05 11:31:47] 开始同步汇总报告...
+From https://github.com/sourit2001/reddit-need-miner
+ * branch            main       -> FETCH_HEAD
+   0d5af0a..2251ce7  main       -> origin/main
+Updating 0d5af0a..2251ce7
+Fast-forward
+ ...\200\273\346\212\245\345\221\212-2026-04-29.md" |  77 +++++++++++++++
+ ...\200\273\346\212\245\345\221\212-2026-04-30.md" | 105 ++++++++++++++++++++
+ ...\200\273\346\212\245\345\221\212-2026-05-01.md" |  76 +++++++++++++++
+ ...\200\273\346\212\245\345\221\212-2026-05-02.md" |  96 ++++++++++++++++++
+ ...\200\273\346\212\245\345\221\212-2026-05-03.md" | 107 +++++++++++++++++++++
+ ...\200\273\346\212\245\345\221\212-2026-05-04.md" |  70 ++++++++++++++
+ sent_posts.json                                    |   2 +-
+ 7 files changed, 532 insertions(+), 1 deletion(-)
+ create mode 100644 "obsidian_sync/\346\261\207\346\200\273\346\212\245\345\221\212-2026-04-29.md"
+ create mode 100644 "obsidian_sync/\346\261\207\346\200\273\346\212\245\345\221\212-2026-04-30.md"
+ create mode 100644 "obsidian_sync/\346\261\207\346\200\273\346\212\245\345\221\212-2026-05-01.md"
+ create mode 100644 "obsidian_sync/\346\261\207\346\200\273\346\212\245\345\221\212-2026-05-02.md"
+ create mode 100644 "obsidian_sync/\346\261\207\346\200\273\346\212\245\345\221\212-2026-05-03.md"
+ create mode 100644 "obsidian_sync/\346\261\207\346\200\273\346\212\245\345\221\212-2026-05-04.md"
+  ✅ 已同步: 汇总报告-2026-04-13.md
+  ✅ 已同步: 汇总报告-2026-04-14.md
+  ✅ 已同步: 汇总报告-2026-04-15.md
+  ✅ 已同步: 汇总报告-2026-04-16.md
+  ✅ 已同步: 汇总报告-2026-04-17.md
+  ✅ 已同步: 汇总报告-2026-04-18.md
+  ✅ 已同步: 汇总报告-2026-04-19.md
+  ✅ 已同步: 汇总报告-2026-04-20.md
+  ✅ 已同步: 汇总报告-2026-04-21.md
+  ✅ 已同步: 汇总报告-2026-04-22.md
+  ✅ 已同步: 汇总报告-2026-04-23.md
+  ✅ 已同步: 汇总报告-2026-04-24.md
+  ✅ 已同步: 汇总报告-2026-04-25.md
+  ✅ 已同步: 汇总报告-2026-04-26.md
+  ✅ 已同步: 汇总报告-2026-04-27.md
+  ✅ 已同步: 汇总报告-2026-04-28.md
+  ✅ 已同步: 汇总报告-2026-04-29.md
+  ✅ 已同步: 汇总报告-2026-04-30.md
+  ✅ 已同步: 汇总报告-2026-05-01.md
+  ✅ 已同步: 汇总报告-2026-05-02.md
+  ✅ 已同步: 汇总报告-2026-05-03.md
+  ✅ 已同步: 汇总报告-2026-05-04.md
+  🎉 共同步了 22 份汇总报告
+[2026-05-05 11:31:50] 同步完成

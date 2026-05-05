@@ -2,6 +2,7 @@ import requests
 import os
 import json
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 # 从环境变量获取配置
 FEISHU_WEBHOOK_URL = os.environ.get("FEISHU_SUMMARY_WEBHOOK") or os.environ.get("FEISHU_WEBHOOK")
@@ -11,6 +12,7 @@ FEISHU_APP_SECRET = os.environ.get("FEISHU_APP_SECRET")
 BITABLE_APP_TOKEN = os.environ.get("BITABLE_APP_TOKEN")
 BITABLE_TABLE_ID = os.environ.get("BITABLE_TABLE_ID")
 OBSIDIAN_PATH = os.environ.get("OBSIDIAN_PATH")
+REPORT_TZ = ZoneInfo("Asia/Shanghai")
 
 def get_tenant_access_token():
     url = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
@@ -60,14 +62,18 @@ def generate_report(records):
             {
                 "role": "system", 
                 "content": (
-                    "你是一个资深商业分析师。请深度阅读并总结以下 Reddit 需求记录，重点关注“需求背后的故事”：\n"
-                    "1. **💡 核心场景还原**：描述 3 个最具体的真实使用场景（例如：用户在处理 Shopify 多店铺退款时遇到了什么），解释需求产生的因果关系。\n"
-                    "2. **🔥 致命痛点挖掘**：找出那些让用户“抓狂”或“损失金钱”的细节，现有的主流工具（如 Shopify, Photoshop 等）在哪里掉链子了？\n"
-                    "3. **💰 付费意愿评估**：挖掘帖子中体现出的紧迫感（如“愿意付费”、“找了很久”、“急需”），判断商业化潜力。\n"
-                    "4. **🎯 迁移行为分析**：针对“Switch from”类需求，总结用户为什么抛弃了现有的知名工具，他们缺的是什么？\n"
-                    "5. **📸 图像/电商专项深度建议**：针对本次抓取的相关内容，给出 2-3 条极具落地价值的产品切入点建议。\n\n"
+                    "你是一个给个人开发者整理 Reddit 产品机会的助手。请用简单、具体、好懂的中文总结，不要写宏观商业报告。\n"
+                    "你的目标是筛出个人开发者能做的内容：小工具、插件、自动化脚本、轻量 SaaS、信息整理工具、AI 工作流。\n\n"
+                    "请按以下角度总结：\n"
+                    "1. **💡 场景**：列出 3 个最具体的用户场景。写清楚“谁、在什么时候、想完成什么、卡在哪里”。\n"
+                    "2. **🛠 方法**：每个高潜机会都要写一个个人开发者可做的第一版，例如浏览器插件、表格自动化、Shopify 插件、AI 总结器、监控提醒、模板生成器等。\n"
+                    "3. **🔍 当前工具评估**：说明用户现在可能用什么工具或土办法，以及这些方案为什么不够好。重点看太贵、太复杂、缺少集成、需要手动复制粘贴、结果不稳定。\n"
+                    "4. **✅ 个人开发者可做性**：只推荐不依赖大团队、重销售、牌照、线下交付的机会。对不适合个人开发者的需求要明确排除。\n"
+                    "5. **📌 今日优先级**：最后给出 3 个最值得先做的机会，用一句话说明为什么。\n\n"
                     "**格式要求**：\n"
                     "- 引用具体帖子时，请务必使用 'ID [帖子标题]' 的格式（例如：#1 [AI Video Bot]）。\n"
+                    "- 每个机会都要包含：场景 / 方法 / 当前工具评估 / 是否适合个人开发者。\n"
+                    "- 用短句和普通话表达，让非技术读者也能看懂。\n"
                     "- 请使用 Emoji 让报告排版易于在移动端（飞书/手机）阅读。"
                 )
             },
@@ -108,12 +114,13 @@ def save_report_to_obsidian(report_text):
     if not os.path.exists(base_dir):
         os.makedirs(base_dir, exist_ok=True)
     
-    date_str = datetime.now().strftime("%Y-%m-%d")
+    now = datetime.now(REPORT_TZ)
+    date_str = now.strftime("%Y-%m-%d")
     filename = os.path.join(base_dir, f"汇总报告-{date_str}.md")
     
     md_content = f"""---
 title: "Reddit 需求发现每日汇总 ({date_str})"
-date: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+date: {now.strftime("%Y-%m-%d %H:%M:%S")}
 tags: [reddit-summary, business-insight]
 ---
 

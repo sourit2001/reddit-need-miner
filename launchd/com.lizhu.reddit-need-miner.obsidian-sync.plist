@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.lizhu.reddit-need-miner.obsidian-sync</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/lizhu/Downloads/CCR/SSH/reddit-need-miner/sync_to_obsidian.sh</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/lizhu/Downloads/CCR/SSH/reddit-need-miner</string>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>StartInterval</key>
+  <integer>3600</integer>
+
+  <key>StandardOutPath</key>
+  <string>/Users/lizhu/Downloads/CCR/SSH/reddit-need-miner/sync.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/lizhu/Downloads/CCR/SSH/reddit-need-miner/sync.log</string>
+</dict>
+</plist>
