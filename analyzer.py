@@ -38,6 +38,19 @@ def fetch_bitable_records(limit=50):
         print(f"读取数据失败: {e}")
         return []
 
+def extract_bitable_link(value):
+    """兼容飞书多维表格链接字段的几种返回形态。"""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, dict):
+        return value.get("link") or value.get("url") or ""
+    if isinstance(value, list):
+        for item in value:
+            link = extract_bitable_link(item)
+            if link:
+                return link
+    return ""
+
 def generate_report(records):
     if not records: return "暂无新记录可分析"
     
@@ -46,10 +59,14 @@ def generate_report(records):
     for idx, r in enumerate(records):
         fields = r.get("fields", {})
         title = fields.get("标题", "无标题")
+        link = extract_bitable_link(fields.get("链接", ""))
         analysis = fields.get("需求分析", "无分析")
         score = fields.get("潜力评分", 0)
         # 增加编号和标题的对应关系，让 AI 更好引用
-        summary_input += f"ID: {idx+1} | 标题: {title} | 评分: {score}分 | 内容摘要: {analysis[:300]}\n\n"
+        summary_input += (
+            f"ID: {idx+1} | 标题: {title} | 评分: {score}分 | 原帖链接: {link or '无链接'} "
+            f"| 内容摘要: {analysis[:300]}\n\n"
+        )
 
     url = "https://api.deepseek.com/chat/completions"
     headers = {
@@ -72,6 +89,7 @@ def generate_report(records):
                     "5. **📌 今日优先级**：最后给出 3 个最值得先做的机会，用一句话说明为什么。\n\n"
                     "**格式要求**：\n"
                     "- 引用具体帖子时，请务必使用 'ID [帖子标题]' 的格式（例如：#1 [AI Video Bot]）。\n"
+                    "- 每个被引用的具体帖子，都必须紧跟一行“原帖链接：<URL>”。如果同一个机会引用多个帖子，请列出每个帖子的链接。\n"
                     "- 每个机会都要包含：场景 / 方法 / 当前工具评估 / 是否适合个人开发者。\n"
                     "- 用短句和普通话表达，让非技术读者也能看懂。\n"
                     "- 请使用 Emoji 让报告排版易于在移动端（飞书/手机）阅读。"
