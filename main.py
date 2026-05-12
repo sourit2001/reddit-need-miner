@@ -22,34 +22,60 @@ BITABLE_TABLE_ID = os.environ.get("BITABLE_TABLE_ID")
 OBSIDIAN_PATH = os.environ.get("OBSIDIAN_PATH")  # 可选：本地运行时的 iCloud 路径
 
 NEED_SOURCES = [
-    # 1. 实时捕获最新需求 (RSS 效率最高)
-    {"name": "r/ecommerce (New)", "url": "https://www.reddit.com/r/ecommerce/new/.rss", "type": "rss"},
-    {"name": "r/ecommerce (Hot)", "url": "https://www.reddit.com/r/ecommerce/hot/.rss", "type": "rss"},
-    {"name": "r/shopify (New)", "url": "https://www.reddit.com/r/shopify/new/.rss", "type": "rss"},
-    {"name": "r/shopify (Hot)", "url": "https://www.reddit.com/r/shopify/hot/.rss", "type": "rss"},
-    {"name": "r/SaaS (New)", "url": "https://www.reddit.com/r/SaaS/new/.rss", "type": "rss"},
-    {"name": "r/SaaS (Hot)", "url": "https://www.reddit.com/r/SaaS/hot/.rss", "type": "rss"},
-    {"name": "r/SideProject (New)", "url": "https://www.reddit.com/r/SideProject/new/.rss", "type": "rss"},
-    {"name": "r/Entrepreneur (New)", "url": "https://www.reddit.com/r/Entrepreneur/new/.rss", "type": "rss"},
-    {"name": "r/Startups (New)", "url": "https://www.reddit.com/r/Startups/new/.rss", "type": "rss"},
-    {"name": "r/ai_agents (New)", "url": "https://www.reddit.com/r/ai_agents/new/.rss", "type": "rss"},
+    # 1. 垂直社区 RSS：优先看有具体工作流和工具痛点的社区，减少泛创业闲聊。
     {"name": "r/SEO (New)", "url": "https://www.reddit.com/r/SEO/new/.rss", "type": "rss"},
-    {"name": "r/openclaw (New)", "url": "https://www.reddit.com/r/openclaw/new/.rss", "type": "rss"},
-    
-    # 3. 极速真机搜索: 解决 RSS 搜索不准的问题 (Scraper 最准确)
+    {"name": "r/bigseo (New)", "url": "https://www.reddit.com/r/bigseo/new/.rss", "type": "rss"},
+    {"name": "r/TechSEO (New)", "url": "https://www.reddit.com/r/TechSEO/new/.rss", "type": "rss"},
+    {"name": "r/webdev (New)", "url": "https://www.reddit.com/r/webdev/new/.rss", "type": "rss"},
+    {"name": "r/Wordpress (New)", "url": "https://www.reddit.com/r/Wordpress/new/.rss", "type": "rss"},
+    {"name": "r/googlecloud (New)", "url": "https://www.reddit.com/r/googlecloud/new/.rss", "type": "rss"},
+    {"name": "r/Firebase (New)", "url": "https://www.reddit.com/r/Firebase/new/.rss", "type": "rss"},
+    {"name": "r/OpenAI (New)", "url": "https://www.reddit.com/r/OpenAI/new/.rss", "type": "rss"},
+    {"name": "r/ClaudeAI (New)", "url": "https://www.reddit.com/r/ClaudeAI/new/.rss", "type": "rss"},
+    {"name": "r/LocalLLaMA (New)", "url": "https://www.reddit.com/r/LocalLLaMA/new/.rss", "type": "rss"},
+    {"name": "r/StableDiffusion (New)", "url": "https://www.reddit.com/r/StableDiffusion/new/.rss", "type": "rss"},
+    {"name": "r/photoshop (New)", "url": "https://www.reddit.com/r/photoshop/new/.rss", "type": "rss"},
+    {"name": "r/Lightroom (New)", "url": "https://www.reddit.com/r/Lightroom/new/.rss", "type": "rss"},
+    {"name": "r/ecommerce (New)", "url": "https://www.reddit.com/r/ecommerce/new/.rss", "type": "rss"},
+    {"name": "r/shopify (New)", "url": "https://www.reddit.com/r/shopify/new/.rss", "type": "rss"},
+
+    # 2. 高意图通用搜索：找正在找工具、替代品、自动化和降本的人。
     {"name": "Search: Tool Request", "query": "is there a tool for", "type": "search"},
+    {"name": "Search: Looking For Software", "query": "looking for software", "type": "search"},
     {"name": "Search: Alternative", "query": "alternative to", "type": "search"},
     {"name": "Search: Switch From", "query": "switch from", "type": "search"},
     {"name": "Search: Stopped Using", "query": "stopped using", "type": "search"},
+    {"name": "Search: Too Expensive", "query": "too expensive tool", "type": "search"},
     {"name": "Search: Automate Pain", "query": "how to automate", "type": "search"},
-    {"name": "Search: Image Editing", "query": "image editing automate", "type": "search"},
-    {"name": "Search: Photo Tool", "query": "tool for batch photo editing", "type": "search"},
-    
-    # 4. Shopify 社区垂直挖掘 (针对特定痛点)
-    {"name": "Shopify: How to", "query": "r/shopify 'How to'", "type": "search"},
-    {"name": "Shopify: Tool Request", "query": "r/shopify 'Is there a tool for'", "type": "search"},
-    {"name": "Shopify: Price Pain", "query": "r/shopify 'Too expensive'", "type": "search"},
-    {"name": "Shopify: Struggle", "query": "r/shopify 'Struggling with'", "type": "search"}
+    {"name": "Search: Manual Workflow", "query": "manual process spreadsheet", "type": "search"},
+    {"name": "Search: Workflow Tracking", "query": "how do you keep track of", "type": "search"},
+
+    # 3. 你的优势领域：AI/API 成本、SEO/GSC、图片处理、聊天客服、电商。
+    {"name": "AI Cost: Token Usage", "query": "token usage monitor", "type": "search"},
+    {"name": "AI Cost: API Bill", "query": "OpenAI bill unexpected", "type": "search"},
+    {"name": "AI Cost: Claude API", "query": "Claude API cost", "type": "search"},
+    {"name": "AI Cost: LLM Cost", "query": "LLM cost tracking", "type": "search"},
+    {"name": "SEO: GSC Indexing", "query": "Google Search Console indexing issue", "type": "search"},
+    {"name": "SEO: GSC Manual", "query": "Google Search Console manual export", "type": "search"},
+    {"name": "SEO: Ahrefs Alternative", "query": "Ahrefs alternative too expensive", "type": "search"},
+    {"name": "SEO: Semrush Alternative", "query": "Semrush alternative too expensive", "type": "search"},
+    {"name": "Images: Product Photos", "query": "product photos AI tool", "type": "search"},
+    {"name": "Images: Batch Editing", "query": "batch photo editing tool", "type": "search"},
+    {"name": "Images: Photoshop Batch", "query": "photoshop batch automate", "type": "search"},
+    {"name": "Images: Background Removal", "query": "remove background batch images", "type": "search"},
+    {"name": "Chat: Intercom Alternative", "query": "Intercom alternative too expensive", "type": "search"},
+    {"name": "Chat: Support Workflow", "query": "customer support email workflow", "type": "search"},
+    {"name": "Chat: Chat Widget", "query": "chat widget alternative", "type": "search"},
+    {"name": "Ecommerce: Shopify Manual", "query": "shopify manually spreadsheet", "type": "search"},
+    {"name": "Ecommerce: Shopify App", "query": "shopify is there an app", "type": "search"},
+    {"name": "Ecommerce: Etsy Bulk", "query": "etsy bulk edit tool", "type": "search"},
+
+    # 4. 其它高概率软件机会：PDF/表格自动化、小企业跟进、开发者监控。
+    {"name": "Docs: PDF Extraction", "query": "extract data from PDF tool", "type": "search"},
+    {"name": "Docs: Excel Manual", "query": "Excel manual process automate", "type": "search"},
+    {"name": "Small Business: Follow Up", "query": "missed calls follow up customers", "type": "search"},
+    {"name": "DevTools: Monitoring Alternative", "query": "Datadog alternative too expensive", "type": "search"},
+    {"name": "DevTools: Webhook Debugging", "query": "webhook debugging tool", "type": "search"}
 ]
 
 DATA_FILE = "sent_posts.json"
