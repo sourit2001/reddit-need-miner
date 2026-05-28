@@ -105,6 +105,68 @@ def clean_html(raw_html):
     cleaner = re.compile('<.*?>')
     return re.sub(cleaner, '', raw_html).strip()
 
+def fetch_post_stats(link, headers):
+    """从 Reddit 单帖 JSON 补充讨论热度信息。失败时返回空 dict，不阻断主流程。"""
+    if not link:
+        return {}
+
+    json_url = link.split('?')[0].rstrip('/') + ".json"
+    json_headers = headers.copy()
+    json_headers['Accept'] = 'application/json'
+
+    try:
+        resp = requests.get(json_url, headers=json_headers, timeout=12)
+        if resp.status_code == 403 and "www.reddit.com" in json_url:
+            resp = requests.get(json_url.replace("www.reddit.com", "old.reddit.com"), headers=json_headers, timeout=12)
+        if resp.status_code != 200:
+            print(f"    Stats fetch skipped for HTTP {resp.status_code}")
+            return {}
+
+        payload = resp.json()
+        post_data = payload[0].get('data', {}).get('children', [])[0].get('data', {})
+        upvotes = post_data.get('ups')
+        comments = post_data.get('num_comments')
+        upvote_ratio = post_data.get('upvote_ratio')
+        engagement = None
+        if isinstance(upvotes, int) and isinstance(comments, int):
+            engagement = upvotes + comments
+
+        return {
+            "upvotes": upvotes,
+            "comments": comments,
+            "upvote_ratio": upvote_ratio,
+            "engagement": engagement,
+            "subreddit": post_data.get('subreddit_name_prefixed') or post_data.get('subreddit'),
+            "created_utc": post_data.get('created_utc'),
+        }
+    except Exception as e:
+        print(f"    Stats fetch failed: {e}")
+        return {}
+
+def format_post_stats(post_stats):
+    if not post_stats:
+        return "讨论数据：暂无"
+
+    upvotes = post_stats.get("upvotes")
+    comments = post_stats.get("comments")
+    engagement = post_stats.get("engagement")
+    upvote_ratio = post_stats.get("upvote_ratio")
+    subreddit = post_stats.get("subreddit")
+
+    parts = []
+    if subreddit:
+        parts.append(f"社区 {subreddit}")
+    if upvotes is not None:
+        parts.append(f"点赞 {upvotes}")
+    if comments is not None:
+        parts.append(f"评论 {comments}")
+    if engagement is not None:
+        parts.append(f"讨论度 {engagement}")
+    if upvote_ratio is not None:
+        parts.append(f"赞同率 {round(upvote_ratio * 100)}%")
+
+    return "讨论数据：" + " / ".join(parts) if parts else "讨论数据：暂无"
+
 def analyze_needs(text, title, needs_translation=True):
     text = clean_html(text)
     if not text or len(text) < 10:
@@ -186,7 +248,8 @@ def analyze_needs(text, title, needs_translation=True):
             print(f"AI Attempt {attempt} Error: {e}")
     return "超时", "超时", "API调用失败", 0, "其他", "API错误"
 
-def send_to_feishu(title, link, source, translation, comments_summary, analysis, score, category, reason):
+def send_to_feishu(title, link, source, translation, comments_summary, analysis, score, category, reason, post_stats=None):
+    stats_text = format_post_stats(post_stats)
     content = {
         "msg_type": "post",
         "content": {
@@ -195,6 +258,7 @@ def send_to_feishu(title, link, source, translation, comments_summary, analysis,
                     "title": f"🚀 [{score}分|{category}] {source}",
                     "content": [
                         [{"tag": "text", "text": f"项目: {title}\n"}],
+                        [{"tag": "text", "text": f"{stats_text}\n"}],
                         [{"tag": "text", "text": f"理由: {reason}\n\n"}],
                         [{"tag": "text", "text": "【译】\n"}, {"tag": "text", "text": f"{translation}\n\n"}],
                         [{"tag": "text", "text": "【评】\n"}, {"tag": "text", "text": f"{comments_summary}\n\n"}],
@@ -207,7 +271,7 @@ def send_to_feishu(title, link, source, translation, comments_summary, analysis,
     }
     return requests.post(FEISHU_WEBHOOK_URL, json=content)
 
-def save_to_obsidian(title, link, source, translation, comments_summary, analysis, score, category, reason):
+def save_to_obsidian(title, link, source, translation, comments_summary, analysis, score, category, reason, post_stats=None):
     """将挖掘内容保存为 Obsidian 兼容的 Markdown 文件"""
     # 强制优先使用 iCloud 路径，如果环境变量没拿到，探测默认 Mac 路径
     i_cloud_path = OBSIDIAN_PATH or "/Users/lizhu/Library/Mobile Documents/iCloud~md~obsidian/Documents/my ai work/obsidian_sync"
@@ -229,6 +293,9 @@ source: "{source}"
 link: "{link}"
 score: {score}
 category: "{category}"
+reddit_upvotes: {post_stats.get("upvotes") if post_stats else "null"}
+reddit_comments: {post_stats.get("comments") if post_stats else "null"}
+reddit_engagement: {post_stats.get("engagement") if post_stats else "null"}
 date: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 tags: [reddit-need, {category.lower()}]
 ---
@@ -236,6 +303,7 @@ tags: [reddit-need, {category.lower()}]
 # {title}
 
 **项目**: {title}
+**讨论数据**: {format_post_stats(post_stats).replace("讨论数据：", "")}
 **理由**: {reason}
 
 ---
@@ -272,7 +340,7 @@ def get_tenant_access_token():
         print(f"Error fetching tenant_access_token: {e}")
         return None
 
-def send_to_bitable(title, link, source, translation, comments_summary, analysis, score, category, reason):
+def send_to_bitable(title, link, source, translation, comments_summary, analysis, score, category, reason, post_stats=None):
     if not (FEISHU_APP_ID and BITABLE_APP_TOKEN): return None
     token = get_tenant_access_token()
     if not token: 
@@ -294,6 +362,12 @@ def send_to_bitable(title, link, source, translation, comments_summary, analysis
         "标题": title,
         "链接": {"link": link, "text": "原帖"},
         "来源": source,
+        "讨论数据": format_post_stats(post_stats),
+        "点赞数": post_stats.get("upvotes") if post_stats else None,
+        "评论数": post_stats.get("comments") if post_stats else None,
+        "讨论度": post_stats.get("engagement") if post_stats else None,
+        "赞同率": post_stats.get("upvote_ratio") if post_stats else None,
+        "Subreddit": post_stats.get("subreddit") if post_stats else None,
         "原文翻译": translation,
         "精选评论": comments_summary,
         "需求分析": analysis,
@@ -307,6 +381,8 @@ def send_to_bitable(title, link, source, translation, comments_summary, analysis
     valid_fields = {}
     if existing_fields:
         for k, v in all_potential_fields.items():
+            if v is None:
+                continue
             if k in existing_fields:
                 valid_fields[k] = v
             else:
@@ -422,6 +498,8 @@ def main():
                 if post_id not in sent_posts:
                     post_rss_url = entry.link.split('?')[0].rstrip('/') + ".rss"
                     full_content, comments = "", ""
+                    post_stats = fetch_post_stats(entry.link, headers)
+                    stats_text = format_post_stats(post_stats)
                     try:
                         p_resp = requests.get(post_rss_url, headers=headers, timeout=15)
                         if p_resp.status_code == 200:
@@ -446,16 +524,17 @@ def main():
                     if not full_content:
                         full_content = clean_html(entry.get('summary', entry.get('description', '')))
 
-                    print(f"  Analyzing: {entry.title} (Content Len: {len(full_content)})")
-                    trans, comm, ans, score, cat, rs = analyze_needs(f"Title: {entry.title}\n{full_content}\nComments: {comments}", entry.title)
+                    print(f"  Analyzing: {entry.title} ({stats_text}, Content Len: {len(full_content)})")
+                    analysis_input = f"Title: {entry.title}\n{stats_text}\n{full_content}\nComments: {comments}"
+                    trans, comm, ans, score, cat, rs = analyze_needs(analysis_input, entry.title)
                     
                     # 仅在评分大于等于 55 时才推送，过滤无关或低质量贴子
                     if score >= 55:
                         print(f"    🚀 高分商机 ({score})，正在推送至飞书...")
-                        try: send_to_feishu(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
+                        try: send_to_feishu(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs, post_stats)
                         except Exception as e: print(f"    ⚠️ Feishu sync failed: {e}")
                         
-                        try: send_to_bitable(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs)
+                        try: send_to_bitable(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs, post_stats)
                         except Exception as e: print(f"    ⚠️ Bitable sync failed: {e}")
                         # 个人帖子不写 Obsidian，只有汇总报告（由 analyzer.py 生成）才同步
                     else:
