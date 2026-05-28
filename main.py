@@ -22,24 +22,31 @@ BITABLE_TABLE_ID = os.environ.get("BITABLE_TABLE_ID")
 OBSIDIAN_PATH = os.environ.get("OBSIDIAN_PATH")  # 可选：本地运行时的 iCloud 路径
 
 NEED_SOURCES = [
-    # 1. 垂直社区 RSS：优先看有具体工作流和工具痛点的社区，减少泛创业闲聊。
+    # 1. 场景社区 RSS：优先找小生意、效率工具、表格/自动化和行业工作流痛点。
+    {"name": "r/smallbusiness (New)", "url": "https://www.reddit.com/r/smallbusiness/new/.rss", "type": "rss"},
+    {"name": "r/Entrepreneur (New)", "url": "https://www.reddit.com/r/Entrepreneur/new/.rss", "type": "rss"},
+    {"name": "r/startups (New)", "url": "https://www.reddit.com/r/startups/new/.rss", "type": "rss"},
+    {"name": "r/SaaS (New)", "url": "https://www.reddit.com/r/SaaS/new/.rss", "type": "rss"},
+    {"name": "r/productivity (New)", "url": "https://www.reddit.com/r/productivity/new/.rss", "type": "rss"},
+    {"name": "r/Notion (New)", "url": "https://www.reddit.com/r/Notion/new/.rss", "type": "rss"},
+    {"name": "r/Airtable (New)", "url": "https://www.reddit.com/r/Airtable/new/.rss", "type": "rss"},
+    {"name": "r/zapier (New)", "url": "https://www.reddit.com/r/zapier/new/.rss", "type": "rss"},
+    {"name": "r/excel (New)", "url": "https://www.reddit.com/r/excel/new/.rss", "type": "rss"},
+    {"name": "r/googlesheets (New)", "url": "https://www.reddit.com/r/googlesheets/new/.rss", "type": "rss"},
+    {"name": "r/marketing (New)", "url": "https://www.reddit.com/r/marketing/new/.rss", "type": "rss"},
+    {"name": "r/sales (New)", "url": "https://www.reddit.com/r/sales/new/.rss", "type": "rss"},
+    {"name": "r/realtors (New)", "url": "https://www.reddit.com/r/realtors/new/.rss", "type": "rss"},
+    {"name": "r/Recruiting (New)", "url": "https://www.reddit.com/r/Recruiting/new/.rss", "type": "rss"},
+    {"name": "r/accounting (New)", "url": "https://www.reddit.com/r/accounting/new/.rss", "type": "rss"},
     {"name": "r/SEO (New)", "url": "https://www.reddit.com/r/SEO/new/.rss", "type": "rss"},
     {"name": "r/bigseo (New)", "url": "https://www.reddit.com/r/bigseo/new/.rss", "type": "rss"},
     {"name": "r/TechSEO (New)", "url": "https://www.reddit.com/r/TechSEO/new/.rss", "type": "rss"},
-    {"name": "r/webdev (New)", "url": "https://www.reddit.com/r/webdev/new/.rss", "type": "rss"},
-    {"name": "r/Wordpress (New)", "url": "https://www.reddit.com/r/Wordpress/new/.rss", "type": "rss"},
-    {"name": "r/googlecloud (New)", "url": "https://www.reddit.com/r/googlecloud/new/.rss", "type": "rss"},
-    {"name": "r/Firebase (New)", "url": "https://www.reddit.com/r/Firebase/new/.rss", "type": "rss"},
     {"name": "r/OpenAI (New)", "url": "https://www.reddit.com/r/OpenAI/new/.rss", "type": "rss"},
     {"name": "r/ClaudeAI (New)", "url": "https://www.reddit.com/r/ClaudeAI/new/.rss", "type": "rss"},
     {"name": "r/LocalLLaMA (New)", "url": "https://www.reddit.com/r/LocalLLaMA/new/.rss", "type": "rss"},
-    {"name": "r/StableDiffusion (New)", "url": "https://www.reddit.com/r/StableDiffusion/new/.rss", "type": "rss"},
-    {"name": "r/photoshop (New)", "url": "https://www.reddit.com/r/photoshop/new/.rss", "type": "rss"},
-    {"name": "r/Lightroom (New)", "url": "https://www.reddit.com/r/Lightroom/new/.rss", "type": "rss"},
     {"name": "r/ecommerce (New)", "url": "https://www.reddit.com/r/ecommerce/new/.rss", "type": "rss"},
-    {"name": "r/shopify (New)", "url": "https://www.reddit.com/r/shopify/new/.rss", "type": "rss"},
 
-    # 2. 高意图通用搜索：找正在找工具、替代品、自动化和降本的人。
+    # 2. 高意图通用搜索：找还没明确说“找程序员”，但正在抱怨手工流程的人。
     {"name": "Search: Tool Request", "query": "is there a tool for", "type": "search"},
     {"name": "Search: Looking For Software", "query": "looking for software", "type": "search"},
     {"name": "Search: Alternative", "query": "alternative to", "type": "search"},
@@ -48,9 +55,13 @@ NEED_SOURCES = [
     {"name": "Search: Too Expensive", "query": "too expensive tool", "type": "search"},
     {"name": "Search: Automate Pain", "query": "how to automate", "type": "search"},
     {"name": "Search: Manual Workflow", "query": "manual process spreadsheet", "type": "search"},
+    {"name": "Search: Copy Paste Pain", "query": "copy paste spreadsheet workflow", "type": "search"},
+    {"name": "Search: Repetitive Work", "query": "repetitive task automate", "type": "search"},
+    {"name": "Search: Dashboard Need", "query": "need a dashboard to track", "type": "search"},
+    {"name": "Search: Alert Need", "query": "need alerts when", "type": "search"},
     {"name": "Search: Workflow Tracking", "query": "how do you keep track of", "type": "search"},
 
-    # 3. 你的优势领域：AI/API 成本、SEO/GSC、图片处理、聊天客服、电商。
+    # 3. 更适合独立小软件的方向：AI/API 成本、SEO/GSC、销售跟进、表格/PDF、轻量监控。
     {"name": "AI Cost: Token Usage", "query": "token usage monitor", "type": "search"},
     {"name": "AI Cost: API Bill", "query": "OpenAI bill unexpected", "type": "search"},
     {"name": "AI Cost: Claude API", "query": "Claude API cost", "type": "search"},
@@ -59,21 +70,16 @@ NEED_SOURCES = [
     {"name": "SEO: GSC Manual", "query": "Google Search Console manual export", "type": "search"},
     {"name": "SEO: Ahrefs Alternative", "query": "Ahrefs alternative too expensive", "type": "search"},
     {"name": "SEO: Semrush Alternative", "query": "Semrush alternative too expensive", "type": "search"},
-    {"name": "Images: Product Photos", "query": "product photos AI tool", "type": "search"},
-    {"name": "Images: Batch Editing", "query": "batch photo editing tool", "type": "search"},
-    {"name": "Images: Photoshop Batch", "query": "photoshop batch automate", "type": "search"},
-    {"name": "Images: Background Removal", "query": "remove background batch images", "type": "search"},
-    {"name": "Chat: Intercom Alternative", "query": "Intercom alternative too expensive", "type": "search"},
-    {"name": "Chat: Support Workflow", "query": "customer support email workflow", "type": "search"},
-    {"name": "Chat: Chat Widget", "query": "chat widget alternative", "type": "search"},
-    {"name": "Ecommerce: Shopify Manual", "query": "shopify manually spreadsheet", "type": "search"},
-    {"name": "Ecommerce: Shopify App", "query": "shopify is there an app", "type": "search"},
-    {"name": "Ecommerce: Etsy Bulk", "query": "etsy bulk edit tool", "type": "search"},
-
-    # 4. 其它高概率软件机会：PDF/表格自动化、小企业跟进、开发者监控。
     {"name": "Docs: PDF Extraction", "query": "extract data from PDF tool", "type": "search"},
     {"name": "Docs: Excel Manual", "query": "Excel manual process automate", "type": "search"},
+    {"name": "Docs: Google Sheets Manual", "query": "Google Sheets manual process automate", "type": "search"},
+    {"name": "Sales: Follow Up", "query": "forgot to follow up with leads", "type": "search"},
+    {"name": "Sales: CRM Too Complex", "query": "CRM too complicated small business", "type": "search"},
+    {"name": "Recruiting: Candidate Tracking", "query": "track candidates spreadsheet", "type": "search"},
+    {"name": "Real Estate: Lead Tracking", "query": "realtor lead tracking spreadsheet", "type": "search"},
+    {"name": "Accounting: Receipt Workflow", "query": "receipt tracking spreadsheet automate", "type": "search"},
     {"name": "Small Business: Follow Up", "query": "missed calls follow up customers", "type": "search"},
+    {"name": "Small Business: Manual Scheduling", "query": "manual scheduling customers spreadsheet", "type": "search"},
     {"name": "DevTools: Monitoring Alternative", "query": "Datadog alternative too expensive", "type": "search"},
     {"name": "DevTools: Webhook Debugging", "query": "webhook debugging tool", "type": "search"}
 ]
@@ -123,7 +129,7 @@ def analyze_needs(text, title, needs_translation=True):
                     "- 如果用户已经在手动凑合、现有工具太贵/太复杂/不好用、可以用现成 API 或简单工作流解决，评分要高。\n\n"
                     "打分标准（总分=A*0.35+B*0.25+C*0.25+D*0.15）：\n"
                     "A. 场景清晰度：能否说清楚谁在什么情况下遇到什么麻烦？\n"
-                    "B. 方法可落地：个人开发者能否用脚本、浏览器插件、AI 工作流、Notion/Slack/Shopify 等集成做出 MVP？\n"
+                    "B. 方法可落地：个人开发者能否用脚本、浏览器插件、AI 工作流、Notion/Slack/表格/邮件等集成做出 MVP？\n"
                     "C. 当前工具缺口：现有工具是否太贵、太复杂、缺少某个关键功能，或用户仍在手动处理？\n"
                     "D. 付费/使用意愿：用户是否表现出急、烦、反复遇到、愿意换工具或愿意付费？\n\n"
                     "写作要求：\n"
