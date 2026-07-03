@@ -6,6 +6,7 @@ import hashlib
 import re
 import time
 from datetime import datetime
+from urllib.parse import urlparse
 from dotenv import load_dotenv
 from scraper import scrape_reddit_search
 
@@ -21,30 +22,55 @@ BITABLE_APP_TOKEN = os.environ.get("BITABLE_APP_TOKEN")
 BITABLE_TABLE_ID = os.environ.get("BITABLE_TABLE_ID")
 OBSIDIAN_PATH = os.environ.get("OBSIDIAN_PATH")  # 可选：本地运行时的 iCloud 路径
 
+# 热度过滤阈值配置
+RSS_MIN_ENGAGEMENT = int(os.environ.get("RSS_MIN_ENGAGEMENT", 8))
+RSS_MIN_UPVOTES = int(os.environ.get("RSS_MIN_UPVOTES", 3))
+SEARCH_MIN_ENGAGEMENT = int(os.environ.get("SEARCH_MIN_ENGAGEMENT", 2))
+SENT_POSTS_KEEP = int(os.environ.get("SENT_POSTS_KEEP", 5000))
+HOT_COMMENTS = int(os.environ.get("HOT_COMMENTS", 30))
+HOT_ENGAGEMENT = int(os.environ.get("HOT_ENGAGEMENT", 80))
+ACTIVE_COMMENTS = int(os.environ.get("ACTIVE_COMMENTS", 10))
+ACTIVE_ENGAGEMENT = int(os.environ.get("ACTIVE_ENGAGEMENT", 25))
+
+
 NEED_SOURCES = [
     # 1. 场景社区 RSS：优先找小生意、效率工具、表格/自动化和行业工作流痛点。
-    {"name": "r/smallbusiness (New)", "url": "https://www.reddit.com/r/smallbusiness/new/.rss", "type": "rss"},
-    {"name": "r/Entrepreneur (New)", "url": "https://www.reddit.com/r/Entrepreneur/new/.rss", "type": "rss"},
-    {"name": "r/startups (New)", "url": "https://www.reddit.com/r/startups/new/.rss", "type": "rss"},
-    {"name": "r/SaaS (New)", "url": "https://www.reddit.com/r/SaaS/new/.rss", "type": "rss"},
-    {"name": "r/productivity (New)", "url": "https://www.reddit.com/r/productivity/new/.rss", "type": "rss"},
-    {"name": "r/Notion (New)", "url": "https://www.reddit.com/r/Notion/new/.rss", "type": "rss"},
-    {"name": "r/Airtable (New)", "url": "https://www.reddit.com/r/Airtable/new/.rss", "type": "rss"},
-    {"name": "r/zapier (New)", "url": "https://www.reddit.com/r/zapier/new/.rss", "type": "rss"},
-    {"name": "r/excel (New)", "url": "https://www.reddit.com/r/excel/new/.rss", "type": "rss"},
-    {"name": "r/googlesheets (New)", "url": "https://www.reddit.com/r/googlesheets/new/.rss", "type": "rss"},
-    {"name": "r/marketing (New)", "url": "https://www.reddit.com/r/marketing/new/.rss", "type": "rss"},
-    {"name": "r/sales (New)", "url": "https://www.reddit.com/r/sales/new/.rss", "type": "rss"},
-    {"name": "r/realtors (New)", "url": "https://www.reddit.com/r/realtors/new/.rss", "type": "rss"},
-    {"name": "r/Recruiting (New)", "url": "https://www.reddit.com/r/Recruiting/new/.rss", "type": "rss"},
-    {"name": "r/accounting (New)", "url": "https://www.reddit.com/r/accounting/new/.rss", "type": "rss"},
-    {"name": "r/SEO (New)", "url": "https://www.reddit.com/r/SEO/new/.rss", "type": "rss"},
-    {"name": "r/bigseo (New)", "url": "https://www.reddit.com/r/bigseo/new/.rss", "type": "rss"},
-    {"name": "r/TechSEO (New)", "url": "https://www.reddit.com/r/TechSEO/new/.rss", "type": "rss"},
-    {"name": "r/OpenAI (New)", "url": "https://www.reddit.com/r/OpenAI/new/.rss", "type": "rss"},
-    {"name": "r/ClaudeAI (New)", "url": "https://www.reddit.com/r/ClaudeAI/new/.rss", "type": "rss"},
-    {"name": "r/LocalLLaMA (New)", "url": "https://www.reddit.com/r/LocalLLaMA/new/.rss", "type": "rss"},
-    {"name": "r/ecommerce (New)", "url": "https://www.reddit.com/r/ecommerce/new/.rss", "type": "rss"},
+    {"name": "r/smallbusiness (Hot)", "url": "https://www.reddit.com/r/smallbusiness/hot/.rss", "type": "rss"},
+    {"name": "r/Entrepreneur (Hot)", "url": "https://www.reddit.com/r/Entrepreneur/hot/.rss", "type": "rss"},
+    {"name": "r/startups (Hot)", "url": "https://www.reddit.com/r/startups/hot/.rss", "type": "rss"},
+    {"name": "r/SaaS (Hot)", "url": "https://www.reddit.com/r/SaaS/hot/.rss", "type": "rss"},
+    {"name": "r/productivity (Hot)", "url": "https://www.reddit.com/r/productivity/hot/.rss", "type": "rss"},
+    {"name": "r/Notion (Hot)", "url": "https://www.reddit.com/r/Notion/hot/.rss", "type": "rss"},
+    {"name": "r/Airtable (Hot)", "url": "https://www.reddit.com/r/Airtable/hot/.rss", "type": "rss"},
+    {"name": "r/zapier (Hot)", "url": "https://www.reddit.com/r/zapier/hot/.rss", "type": "rss"},
+    {"name": "r/excel (Hot)", "url": "https://www.reddit.com/r/excel/hot/.rss", "type": "rss"},
+    {"name": "r/googlesheets (Hot)", "url": "https://www.reddit.com/r/googlesheets/hot/.rss", "type": "rss"},
+    {"name": "r/marketing (Hot)", "url": "https://www.reddit.com/r/marketing/hot/.rss", "type": "rss"},
+    {"name": "r/sales (Hot)", "url": "https://www.reddit.com/r/sales/hot/.rss", "type": "rss"},
+    {"name": "r/realtors (Hot)", "url": "https://www.reddit.com/r/realtors/hot/.rss", "type": "rss"},
+    {"name": "r/Recruiting (Hot)", "url": "https://www.reddit.com/r/Recruiting/hot/.rss", "type": "rss"},
+    {"name": "r/accounting (Hot)", "url": "https://www.reddit.com/r/accounting/hot/.rss", "type": "rss"},
+    {"name": "r/SEO (Hot)", "url": "https://www.reddit.com/r/SEO/hot/.rss", "type": "rss"},
+    {"name": "r/bigseo (Hot)", "url": "https://www.reddit.com/r/bigseo/hot/.rss", "type": "rss"},
+    {"name": "r/TechSEO (Hot)", "url": "https://www.reddit.com/r/TechSEO/hot/.rss", "type": "rss"},
+    {"name": "r/OpenAI (Hot)", "url": "https://www.reddit.com/r/OpenAI/hot/.rss", "type": "rss"},
+    {"name": "r/ClaudeAI (Hot)", "url": "https://www.reddit.com/r/ClaudeAI/hot/.rss", "type": "rss"},
+    {"name": "r/LocalLLaMA (Hot)", "url": "https://www.reddit.com/r/LocalLLaMA/hot/.rss", "type": "rss"},
+    {"name": "r/ecommerce (Hot)", "url": "https://www.reddit.com/r/ecommerce/hot/.rss", "type": "rss"},
+
+    # 本地音频资料库方向：音乐、有声书、播客、课程录音、语音笔记、语言学习和自托管媒体。
+    {"name": "r/musichoarder (Hot)", "url": "https://www.reddit.com/r/musichoarder/hot/.rss", "type": "rss"},
+    {"name": "r/audiobooks (Hot)", "url": "https://www.reddit.com/r/audiobooks/hot/.rss", "type": "rss"},
+    {"name": "r/podcasts (Hot)", "url": "https://www.reddit.com/r/podcasts/hot/.rss", "type": "rss"},
+    {"name": "r/selfhosted (Hot)", "url": "https://www.reddit.com/r/selfhosted/hot/.rss", "type": "rss"},
+    {"name": "r/DataHoarder (Hot)", "url": "https://www.reddit.com/r/DataHoarder/hot/.rss", "type": "rss"},
+    {"name": "r/foobar2000 (Hot)", "url": "https://www.reddit.com/r/foobar2000/hot/.rss", "type": "rss"},
+    {"name": "r/navidrome (Hot)", "url": "https://www.reddit.com/r/navidrome/hot/.rss", "type": "rss"},
+    {"name": "r/jellyfin (Hot)", "url": "https://www.reddit.com/r/jellyfin/hot/.rss", "type": "rss"},
+    {"name": "r/ObsidianMD (Hot)", "url": "https://www.reddit.com/r/ObsidianMD/hot/.rss", "type": "rss"},
+    {"name": "r/languagelearning (Hot)", "url": "https://www.reddit.com/r/languagelearning/hot/.rss", "type": "rss"},
+    {"name": "r/headphones (Hot)", "url": "https://www.reddit.com/r/headphones/hot/.rss", "type": "rss"},
+    {"name": "r/audiophile (Hot)", "url": "https://www.reddit.com/r/audiophile/hot/.rss", "type": "rss"},
 
     # 2. 高意图通用搜索：找还没明确说“找程序员”，但正在抱怨手工流程的人。
     {"name": "Search: Tool Request", "query": "is there a tool for", "type": "search"},
@@ -81,7 +107,28 @@ NEED_SOURCES = [
     {"name": "Small Business: Follow Up", "query": "missed calls follow up customers", "type": "search"},
     {"name": "Small Business: Manual Scheduling", "query": "manual scheduling customers spreadsheet", "type": "search"},
     {"name": "DevTools: Monitoring Alternative", "query": "Datadog alternative too expensive", "type": "search"},
-    {"name": "DevTools: Webhook Debugging", "query": "webhook debugging tool", "type": "search"}
+    {"name": "DevTools: Webhook Debugging", "query": "webhook debugging tool", "type": "search"},
+
+    # 4. 本地音频播放器/资料库高意图搜索：不只音乐，也覆盖有声书、播客、录音、转写和语言学习。
+    {"name": "Audio: Local Player", "query": "local audio player", "type": "search"},
+    {"name": "Audio: Local Files Player", "query": "audio player local files", "type": "search"},
+    {"name": "Audio: Library Management", "query": "audio library management", "type": "search"},
+    {"name": "Audio: Timestamp Notes", "query": "audio timestamp notes", "type": "search"},
+    {"name": "Audio: Bookmarks", "query": "audio player bookmarks", "type": "search"},
+    {"name": "Audio: Transcription", "query": "transcribe local audio files", "type": "search"},
+    {"name": "Audio: Voice Memo Search", "query": "voice memo transcription search", "type": "search"},
+    {"name": "Audio: Audiobook Local Files", "query": "audiobook player local files", "type": "search"},
+    {"name": "Audio: Audiobook Bookmarks", "query": "audiobook player bookmarks notes", "type": "search"},
+    {"name": "Audio: Audible Alternative", "query": "Audible alternative local files", "type": "search"},
+    {"name": "Audio: Podcast Local Files", "query": "podcast app local files", "type": "search"},
+    {"name": "Audio: Podcast Offline", "query": "podcast app offline downloads", "type": "search"},
+    {"name": "Audio: Skip Silence", "query": "skip silence podcast player", "type": "search"},
+    {"name": "Audio: Language AB Repeat", "query": "AB repeat audio player language learning", "type": "search"},
+    {"name": "Audio: Slow Playback", "query": "slow down audio without changing pitch language learning", "type": "search"},
+    {"name": "Audio: Foobar Alternative", "query": "foobar2000 alternative", "type": "search"},
+    {"name": "Audio: Plexamp Alternative", "query": "Plexamp alternative", "type": "search"},
+    {"name": "Audio: Navidrome Client", "query": "Navidrome client", "type": "search"},
+    {"name": "Audio: Subsonic Client", "query": "Subsonic client music player", "type": "search"}
 ]
 
 DATA_FILE = "sent_posts.json"
@@ -95,10 +142,21 @@ def load_sent_posts():
 
 def save_sent_posts(sent_list):
     with open(DATA_FILE, 'w') as f:
-        json.dump(sent_list[-200:], f)
+        json.dump(list(dict.fromkeys(sent_list))[-SENT_POSTS_KEEP:], f)
 
 def get_post_id(entry):
-    return hashlib.md5(entry.get('link', '').encode('utf-8')).hexdigest()
+    """Return a stable Reddit post id across RSS/search/www/old URL variants."""
+    link = entry.get('link', '') or ''
+    parsed = urlparse(link.split('?')[0])
+    path_parts = [part for part in parsed.path.strip('/').split('/') if part]
+
+    if 'comments' in path_parts:
+        comments_idx = path_parts.index('comments')
+        if len(path_parts) > comments_idx + 1:
+            return f"reddit_{path_parts[comments_idx + 1]}"
+
+    raw_id = entry.get('id') or entry.get('guid') or link
+    return hashlib.md5(str(raw_id).encode('utf-8')).hexdigest()
 
 def clean_html(raw_html):
     if not raw_html: return ""
@@ -130,12 +188,18 @@ def fetch_post_stats(link, headers):
         engagement = None
         if isinstance(upvotes, int) and isinstance(comments, int):
             engagement = upvotes + comments
+        heat = "普通"
+        if (isinstance(comments, int) and comments >= HOT_COMMENTS) or (isinstance(engagement, int) and engagement >= HOT_ENGAGEMENT):
+            heat = "热帖"
+        elif (isinstance(comments, int) and comments >= ACTIVE_COMMENTS) or (isinstance(engagement, int) and engagement >= ACTIVE_ENGAGEMENT):
+            heat = "讨论中"
 
         return {
             "upvotes": upvotes,
             "comments": comments,
             "upvote_ratio": upvote_ratio,
             "engagement": engagement,
+            "heat": heat,
             "subreddit": post_data.get('subreddit_name_prefixed') or post_data.get('subreddit'),
             "created_utc": post_data.get('created_utc'),
         }
@@ -152,10 +216,13 @@ def format_post_stats(post_stats):
     engagement = post_stats.get("engagement")
     upvote_ratio = post_stats.get("upvote_ratio")
     subreddit = post_stats.get("subreddit")
+    heat = post_stats.get("heat")
 
     parts = []
     if subreddit:
         parts.append(f"社区 {subreddit}")
+    if heat:
+        parts.append(f"热度 {heat}")
     if upvotes is not None:
         parts.append(f"点赞 {upvotes}")
     if comments is not None:
@@ -274,7 +341,7 @@ def send_to_feishu(title, link, source, translation, comments_summary, analysis,
 def save_to_obsidian(title, link, source, translation, comments_summary, analysis, score, category, reason, post_stats=None):
     """将挖掘内容保存为 Obsidian 兼容的 Markdown 文件"""
     # 强制优先使用 iCloud 路径，如果环境变量没拿到，探测默认 Mac 路径
-    i_cloud_path = OBSIDIAN_PATH or "/Users/lizhu/Library/Mobile Documents/iCloud~md~obsidian/Documents/my ai work/obsidian_sync"
+    i_cloud_path = OBSIDIAN_PATH or "/Users/lizhu/Library/Mobile Documents/iCloud~md~obsidian/Documents/my ai work/reddit"
     
     # 如果是本地运行环境（路径存在），则使用它；否则使用 GitHub Actions 默认的本地文件夹
     base_dir = i_cloud_path if os.path.isdir(os.path.dirname(i_cloud_path)) else "obsidian_sync"
@@ -404,6 +471,7 @@ def main():
     if not FEISHU_WEBHOOK_URL: return
     sent_posts = load_sent_posts()
     new_sent_list = list(sent_posts)
+    seen_post_ids = set(sent_posts)
     # 使用更真实的现代浏览器 User-Agent
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
@@ -495,10 +563,37 @@ def main():
             
             for entry in entries_to_process:
                 post_id = get_post_id(entry)
-                if post_id not in sent_posts:
+                if post_id not in seen_post_ids:
+                    post_stats = fetch_post_stats(entry.link, headers)
+                    
+                    # --- 🚀 前置热度过滤逻辑 ---
+                    should_filter = False
+                    filter_reason = ""
+                    if post_stats:
+                        upvotes = post_stats.get("upvotes", 0) or 0
+                        comments = post_stats.get("comments", 0) or 0
+                        engagement = post_stats.get("engagement", 0) or 0
+                        
+                        if source_info.get('type') == 'rss':
+                            # 对于场景社区 RSS，执行严格过滤
+                            if engagement < RSS_MIN_ENGAGEMENT or upvotes < RSS_MIN_UPVOTES:
+                                should_filter = True
+                                filter_reason = f"点赞数 {upvotes}，评论数 {comments}，讨论度 {engagement} < 门槛 (点赞 {RSS_MIN_UPVOTES}, 讨论度 {RSS_MIN_ENGAGEMENT})"
+                        else:
+                            # 对于高意图搜索，执行温和过滤
+                            if engagement < SEARCH_MIN_ENGAGEMENT:
+                                should_filter = True
+                                filter_reason = f"点赞数 {upvotes}，评论数 {comments}，讨论度 {engagement} < 门槛 (讨论度 {SEARCH_MIN_ENGAGEMENT})"
+                    
+                    if should_filter:
+                        print(f"    ⏩ [热度不足] 过滤帖子: \"{entry.title[:40]}...\"。原因: {filter_reason}。直接跳过，并记入已处理列表。")
+                        new_sent_list.append(post_id)
+                        seen_post_ids.add(post_id)
+                        continue
+                    # ----------------------------
+
                     post_rss_url = entry.link.split('?')[0].rstrip('/') + ".rss"
                     full_content, comments = "", ""
-                    post_stats = fetch_post_stats(entry.link, headers)
                     stats_text = format_post_stats(post_stats)
                     try:
                         p_resp = requests.get(post_rss_url, headers=headers, timeout=15)
@@ -541,6 +636,7 @@ def main():
                         print(f"    ⏩ 评分较低 ({score})，跳过同步，记录已处理。")
                     
                     new_sent_list.append(post_id)
+                    seen_post_ids.add(post_id)
             
             # 每处理完一个源休息一下，降低被封频次
             time.sleep(2)

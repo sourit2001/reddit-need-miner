@@ -16,6 +16,9 @@ from main import (
     clean_html, 
     get_post_id,
     save_to_obsidian, # 新增
+    fetch_post_stats, # 用于获取帖子热度
+    format_post_stats, # 用于格式化帖子热度
+    SENT_POSTS_KEEP,
     FEISHU_APP_ID,
     FEISHU_APP_SECRET,
     AI_API_KEY
@@ -25,6 +28,7 @@ from scraper import scrape_reddit_search
 # 深度挖掘专用配置 (从环境变量读取，确保与 main.py 隔离)
 DEEP_BITABLE_APP_TOKEN = os.environ.get("DEEP_BITABLE_APP_TOKEN")
 DEEP_BITABLE_TABLE_ID = os.environ.get("DEEP_BITABLE_TABLE_ID")
+DEEP_MIN_ENGAGEMENT = int(os.environ.get("DEEP_MIN_ENGAGEMENT", 3))
 
 # 启动调试：验证 ID 是否加载正确 (只显示前4位保护隐私)
 print(f"DEBUG: App ID loaded: {FEISHU_APP_ID[:4]}..." if FEISHU_APP_ID else "DEBUG: App ID NOT LOADED")
@@ -55,9 +59,9 @@ def load_sent_deep():
 
 def save_sent_deep(sent_list):
     with open(SENT_DEEP_FILE, 'w') as f:
-        json.dump(sent_list[-1000:], f)
+        json.dump(list(dict.fromkeys(sent_list))[-SENT_POSTS_KEEP:], f)
 
-def send_to_deep_bitable(keyword, title, link, source, translation, comments_summary, analysis, score, category, reason):
+def send_to_deep_bitable(keyword, title, link, source, translation, comments_summary, analysis, score, category, reason, post_stats=None):
     if not (FEISHU_APP_ID and DEEP_BITABLE_APP_TOKEN): 
         print("Error: Missing Feishu App ID or Bitable App Token")
         return None
@@ -86,7 +90,15 @@ def send_to_deep_bitable(keyword, title, link, source, translation, comments_sum
         "需求分析": str(analysis),
         "相关性": str(score),  # 你的表里这一列是“文本”，必须传字符串
         "搜索关键词": str(keyword),
-        "捕获时间": int(datetime.now().timestamp() * 1000) # 你的表里这一列是“日期”，必须传毫秒时间戳
+        "捕获时间": int(datetime.now().timestamp() * 1000), # 你的表里这一列是“日期”，必须传毫秒时间戳
+        
+        # 热度数据支持
+        "讨论数据": format_post_stats(post_stats) if post_stats else "讨论数据：暂无",
+        "点赞数": post_stats.get("upvotes") if post_stats else None,
+        "评论数": post_stats.get("comments") if post_stats else None,
+        "讨论度": post_stats.get("engagement") if post_stats else None,
+        "赞同率": post_stats.get("upvote_ratio") if post_stats else None,
+        "Subreddit": post_stats.get("subreddit") if post_stats else None
     }
     
     # 3. 过滤出表格中真正存在的字段
@@ -125,6 +137,7 @@ def run_deep_miner():
 
     sent_posts = load_sent_deep()
     new_sent_list = list(sent_posts)
+    seen_post_ids = set(sent_posts)
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'}
 
     for kw in keywords:
@@ -182,8 +195,30 @@ def run_deep_miner():
                     
                     entry = p_feed.entries[0] # 主贴
                     post_id = get_post_id(entry)
-                    if post_id in sent_posts: continue
+                    if post_id in seen_post_ids: continue
                     
+                    post_stats = fetch_post_stats(entry.link, headers)
+                    
+                    # --- 🚀 深度挖掘前置热度过滤 ---
+                    should_filter = False
+                    filter_reason = ""
+                    if post_stats:
+                        upvotes = post_stats.get("upvotes", 0) or 0
+                        comments = post_stats.get("comments", 0) or 0
+                        engagement = post_stats.get("engagement", 0) or 0
+                        
+                        if engagement < DEEP_MIN_ENGAGEMENT:
+                            should_filter = True
+                            filter_reason = f"点赞数 {upvotes}，评论数 {comments}，讨论度 {engagement} < 门槛 (讨论度 {DEEP_MIN_ENGAGEMENT})"
+                    
+                    if should_filter:
+                        print(f"    ⏩ [热度不足] 过滤深度帖子: \"{entry.title[:40]}...\"。原因: {filter_reason}。直接跳过，并记入已处理列表。")
+                        new_sent_list.append(post_id)
+                        seen_post_ids.add(post_id)
+                        save_sent_deep(new_sent_list)
+                        continue
+                    # ------------------------------
+
                     full_content = clean_html(entry.get('summary', entry.get('description', '')))
                     comments = ""
                     for c in p_feed.entries[1:10]: # 深度挖掘可以多看几条评论
@@ -204,20 +239,29 @@ def run_deep_miner():
                     # 深度挖掘通常长尾需求多，阈值设为 45 过滤完全无关的内容
                     if score >= 45:
                         print(f"  📤 Syncing (Score: {score})...")
-                        try: send_to_deep_bitable(kw, entry.title, entry.link, "Reddit Deep Miner", trans, comm, ans, score, cat, rs)
-                        except Exception as e: print(f"  ⚠️ Deep Bitable sync failed: {e}")
                         
-                        try: save_to_obsidian(entry.title, entry.link, "Reddit Deep Miner", trans, comm, ans, score, cat, rs)
-                        except Exception as e: print(f"  ⚠️ Obsidian sync failed: {e}")
+                        # 修复未定义 b_resp 的隐患，同时调用同步
+                        b_resp = None
+                        try: 
+                            b_resp = send_to_deep_bitable(kw, entry.title, entry.link, "Reddit Deep Miner", trans, comm, ans, score, cat, rs, post_stats)
+                        except Exception as e: 
+                            print(f"  ⚠️ Deep Bitable sync failed: {e}")
+                        
+                        try: 
+                            save_to_obsidian(entry.title, entry.link, "Reddit Deep Miner", trans, comm, ans, score, cat, rs, post_stats)
+                        except Exception as e: 
+                            print(f"  ⚠️ Obsidian sync failed: {e}")
                         
                         if b_resp and b_resp.status_code == 200:
                             new_sent_list.append(post_id)
+                            seen_post_ids.add(post_id)
                             save_sent_deep(new_sent_list)
                         else:
                             print(f"  ❌ Sync failed: {b_resp.text if b_resp else 'No Response'}")
                     else:
                         print(f"  ⏩ Score {score} too low, skipping.")
                         new_sent_list.append(post_id)
+                        seen_post_ids.add(post_id)
                         save_sent_deep(new_sent_list)
                     
                     # 避免触发频率限制
