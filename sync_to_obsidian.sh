@@ -5,8 +5,11 @@
 # 用法：手动运行，或通过 crontab 定时自动运行
 
 REPO_DIR="/Users/lizhu/Downloads/CCR/SSH/reddit-need-miner"
-OBSIDIAN_DIR="/Users/lizhu/Library/Mobile Documents/iCloud~md~obsidian/Documents/my ai work/obsidian_sync"
-LOG_FILE="$REPO_DIR/sync.log"
+OBSIDIAN_DIR="/Users/lizhu/Library/Mobile Documents/iCloud~md~obsidian/Documents/my ai work/reddit"
+LOG_DIR="/Users/lizhu/Library/Logs/reddit-need-miner"
+LOG_FILE="$LOG_DIR/obsidian-sync.log"
+
+mkdir -p "$LOG_DIR"
 
 echo "[$( date '+%Y-%m-%d %H:%M:%S' )] 开始同步汇总报告..." | tee -a "$LOG_FILE"
 

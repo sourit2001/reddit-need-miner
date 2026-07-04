@@ -3,5 +3,6 @@ venv/
 __pycache__/
 *.pyc
 *.xlsx
+*.mp4
 deep_keywords.json
 .DS_Store
