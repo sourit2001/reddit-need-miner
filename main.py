@@ -28,6 +28,10 @@ RSS_MIN_ENGAGEMENT = int(os.environ.get("RSS_MIN_ENGAGEMENT", 8))
 RSS_MIN_UPVOTES = int(os.environ.get("RSS_MIN_UPVOTES", 3))
 SEARCH_MIN_ENGAGEMENT = int(os.environ.get("SEARCH_MIN_ENGAGEMENT", 2))
 SENT_POSTS_KEEP = int(os.environ.get("SENT_POSTS_KEEP", 5000))
+SYNC_SCORE_THRESHOLD = int(os.environ.get("SYNC_SCORE_THRESHOLD", 55))
+HOT_SYNC_SCORE_THRESHOLD = int(os.environ.get("HOT_SYNC_SCORE_THRESHOLD", 40))
+HOT_SYNC_COMMENTS = int(os.environ.get("HOT_SYNC_COMMENTS", 20))
+HOT_SYNC_ENGAGEMENT = int(os.environ.get("HOT_SYNC_ENGAGEMENT", 50))
 HOT_COMMENTS = int(os.environ.get("HOT_COMMENTS", 30))
 HOT_ENGAGEMENT = int(os.environ.get("HOT_ENGAGEMENT", 80))
 ACTIVE_COMMENTS = int(os.environ.get("ACTIVE_COMMENTS", 10))
@@ -39,7 +43,7 @@ SOURCE_SLEEP_MIN = float(os.environ.get("SOURCE_SLEEP_MIN", 4))
 SOURCE_SLEEP_MAX = float(os.environ.get("SOURCE_SLEEP_MAX", 9))
 REQUEST_SLEEP_MIN = float(os.environ.get("REQUEST_SLEEP_MIN", 0.8))
 REQUEST_SLEEP_MAX = float(os.environ.get("REQUEST_SLEEP_MAX", 2.5))
-FETCH_POST_STATS = os.environ.get("FETCH_POST_STATS", "0") == "1"
+FETCH_POST_STATS = os.environ.get("FETCH_POST_STATS", "1") == "1"
 FETCH_COMMENTS = os.environ.get("FETCH_COMMENTS", "0") == "1"
 ENABLE_SEARCH_BROWSER = os.environ.get("ENABLE_SEARCH_BROWSER", "0") == "1"
 ENABLE_SEARCH_JSON_FALLBACK = os.environ.get("ENABLE_SEARCH_JSON_FALLBACK", "0") == "1"
@@ -154,7 +158,9 @@ def print_source_summary():
         f"{rss_count} subreddits/RSS sources, {search_count} search keywords. "
         f"Limits: RSS {RSS_ENTRY_LIMIT}/source, search {SEARCH_RESULT_LIMIT}/keyword. "
         f"Post stats={'on' if FETCH_POST_STATS else 'off'}, comments={'on' if FETCH_COMMENTS else 'off'}, "
-        f"browser search={'on' if ENABLE_SEARCH_BROWSER else 'off'}."
+        f"browser search={'on' if ENABLE_SEARCH_BROWSER else 'off'}. "
+        f"Sync thresholds: normal AI>={SYNC_SCORE_THRESHOLD}, hot AI>={HOT_SYNC_SCORE_THRESHOLD} "
+        f"when comments>={HOT_SYNC_COMMENTS} or engagement>={HOT_SYNC_ENGAGEMENT}."
     )
 
 def polite_sleep(min_seconds=REQUEST_SLEEP_MIN, max_seconds=REQUEST_SLEEP_MAX):
@@ -713,9 +719,26 @@ def main():
                     analysis_input = f"Title: {title}\nLink: {link}\n{stats_text}\n{full_content}\nComments: {comments or 'Not fetched'}"
                     trans, comm, ans, score, cat, rs = analyze_needs(analysis_input, title)
                     
-                    # 仅在评分大于等于 55 时才推送，过滤无关或低质量贴子
-                    if score >= 55:
-                        print(f"    🚀 高分商机 ({score})，正在推送至飞书...")
+                    stat_comments = post_stats.get("comments", 0) if post_stats else 0
+                    stat_engagement = post_stats.get("engagement", 0) if post_stats else 0
+                    is_hot_discussion = (
+                        (stat_comments or 0) >= HOT_SYNC_COMMENTS
+                        or (stat_engagement or 0) >= HOT_SYNC_ENGAGEMENT
+                    )
+                    should_sync = score >= SYNC_SCORE_THRESHOLD or (
+                        is_hot_discussion and score >= HOT_SYNC_SCORE_THRESHOLD
+                    )
+                    sync_reason = (
+                        f"AI评分 {score} >= {SYNC_SCORE_THRESHOLD}"
+                        if score >= SYNC_SCORE_THRESHOLD
+                        else (
+                            f"热帖兜底：AI评分 {score} >= {HOT_SYNC_SCORE_THRESHOLD}，"
+                            f"评论 {stat_comments or 0}，讨论度 {stat_engagement or 0}"
+                        )
+                    )
+
+                    if should_sync:
+                        print(f"    🚀 同步商机：{sync_reason}。正在推送至飞书...")
                         try: send_to_feishu(title, link, source_info['name'], trans, comm, ans, score, cat, rs, post_stats)
                         except Exception as e: print(f"    ⚠️ Feishu sync failed: {e}")
                         
@@ -723,7 +746,11 @@ def main():
                         except Exception as e: print(f"    ⚠️ Bitable sync failed: {e}")
                         # 个人帖子不写 Obsidian，只有汇总报告（由 analyzer.py 生成）才同步
                     else:
-                        print(f"    ⏩ 评分较低 ({score})，跳过同步，记录已处理。")
+                        print(
+                            f"    ⏩ 跳过：AI评分 {score} < {SYNC_SCORE_THRESHOLD}"
+                            f"，评论 {stat_comments or 0}，讨论度 {stat_engagement or 0}"
+                            f"{'，未达到热帖兜底分' if is_hot_discussion else '，未达到热帖门槛'}。记录已处理。"
+                        )
                     
                     new_sent_list.append(post_id)
                     seen_post_ids.add(post_id)
