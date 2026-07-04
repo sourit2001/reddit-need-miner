@@ -223,6 +223,28 @@ def clean_html(raw_html):
     cleaner = re.compile('<.*?>')
     return re.sub(cleaner, '', raw_html).strip()
 
+def extract_tagged_section(tag, text):
+    pattern = rf"\[{tag}\]\s*(.*?)(?=\s*\[|$)"
+    match = re.search(pattern, text, re.DOTALL | re.IGNORECASE)
+    return match.group(1).strip() if match else ""
+
+def parse_score(score_text, full_content=""):
+    """Parse the model score as a 0-100 integer, avoiding list numbers like '1. 85'."""
+    candidates = re.findall(r"(?<!\d)(100|[1-9]?\d)(?!\d)", score_text or "")
+    if not candidates and full_content:
+        score_match = re.search(r"\[评分\]\s*(?:潜力评分[:：]?)?\s*(100|[1-9]?\d)", full_content, re.IGNORECASE)
+        if score_match:
+            candidates = [score_match.group(1)]
+
+    if not candidates:
+        return 0
+
+    numbers = [int(candidate) for candidate in candidates]
+    meaningful = [number for number in numbers if number > 10]
+    if meaningful:
+        return max(0, min(100, meaningful[0]))
+    return max(0, min(100, numbers[-1]))
+
 def fetch_post_stats(link, headers):
     """从 Reddit 单帖 JSON 补充讨论热度信息。失败时返回空 dict，不阻断主流程。"""
     if not link:
@@ -320,11 +342,18 @@ def analyze_needs(text, title, needs_translation=True):
                     "先判断这个帖子是否值得个人开发者做：\n"
                     "- 如果需求太泛、太依赖线下资源、需要大团队/牌照/重运营、或只是闲聊，评分要低。\n"
                     "- 如果用户已经在手动凑合、现有工具太贵/太复杂/不好用、可以用现成 API 或简单工作流解决，评分要高。\n\n"
-                    "打分标准（总分=A*0.35+B*0.25+C*0.25+D*0.15）：\n"
+                    "打分必须使用 0-100 分制，不是 0-10、1-5 或等级分。\n"
+                    "打分标准（总分=A*0.35+B*0.25+C*0.25+D*0.15，每项也是 0-100 分）：\n"
                     "A. 场景清晰度：能否说清楚谁在什么情况下遇到什么麻烦？\n"
                     "B. 方法可落地：个人开发者能否用脚本、浏览器插件、AI 工作流、Notion/Slack/表格/邮件等集成做出 MVP？\n"
                     "C. 当前工具缺口：现有工具是否太贵、太复杂、缺少某个关键功能，或用户仍在手动处理？\n"
                     "D. 付费/使用意愿：用户是否表现出急、烦、反复遇到、愿意换工具或愿意付费？\n\n"
+                    "分数校准：\n"
+                    "- 0-20：没有明确需求、纯闲聊、新闻、教程、展示、求赞、灌水。\n"
+                    "- 21-45：有问题但不适合个人开发者做产品，或证据很弱。\n"
+                    "- 46-64：有具体痛点，可以记录观察，但机会还不够强。\n"
+                    "- 65-79：明确可做的个人开发者机会，值得同步。\n"
+                    "- 80-100：痛点强、工具缺口明显、MVP 很清楚、可能有人付费。\n\n"
                     "写作要求：\n"
                     "- 用短句，不要用抽象词堆砌。\n"
                     "- 每点都要尽量落到一个具体用户、具体动作、具体问题。\n"
@@ -339,7 +368,8 @@ def analyze_needs(text, title, needs_translation=True):
                     "4. 可做性判断：为什么适合或不适合个人开发者做？\n"
                     "5. 一句话机会：用一句大白话说明这个产品机会。\n"
                     "[精选评论]\n内容\n"
-                    "[评分]\n数字 (请拉开差距，拒绝平庸)\n"
+                    "[评分]\n"
+                    "只输出一个 0-100 的整数，例如 72。不要写编号、不要写“分”、不要写“/100”。\n"
                     "[打分理由]\n一句话说明为什么这个分数适合个人开发者\n"
                     "[分类]\n类别"
                 )
@@ -352,27 +382,26 @@ def analyze_needs(text, title, needs_translation=True):
     for attempt in range(2):
         try:
             resp = requests.post(url, json=payload, headers=headers, timeout=60)
+            if resp.status_code != 200:
+                print(f"AI Attempt {attempt} HTTP {resp.status_code}: {resp.text[:500]}")
+                continue
             res_json = resp.json()
             full_content = res_json['choices'][0]['message']['content'].strip()
 
-            def quick_extract(tag, s):
-                pattern = rf"\[{tag}\]\s*(.*?)(?=\s*\[|$)"
-                match = re.search(pattern, s, re.DOTALL | re.IGNORECASE)
-                return match.group(1).strip() if match else ""
-
-            trans = quick_extract("翻译", full_content) if needs_translation else "原文搬运"
-            comm = quick_extract("精选评论", full_content)
-            ans = quick_extract("分析", full_content)
-            score_s = quick_extract("评分", full_content)
-            cat = quick_extract("分类", full_content)
-            reason = quick_extract("打分理由", full_content)
+            trans = extract_tagged_section("翻译", full_content) if needs_translation else "原文搬运"
+            comm = extract_tagged_section("精选评论", full_content)
+            ans = extract_tagged_section("分析", full_content)
+            score_s = extract_tagged_section("评分", full_content)
+            cat = extract_tagged_section("分类", full_content)
+            reason = extract_tagged_section("打分理由", full_content)
 
             # 强力兜底
             if not ans and len(full_content) > 20:
                 ans = full_content
             
-            try: score = int(re.search(r'\d+', score_s).group())
-            except: score = 0
+            score = parse_score(score_s, full_content)
+            if score == 0 and not score_s:
+                print(f"AI score parse warning: missing [评分] section. Raw output: {full_content[:500]}")
             
             return trans or "无内容", comm or "无内容", ans or "解析失败", score, cat or "其他", reason or "无理由"
         except Exception as e:
