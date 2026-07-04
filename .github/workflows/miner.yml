@@ -24,8 +24,10 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          playwright install chromium
-          playwright install-deps chromium
+
+      - name: Verify scan config
+        run: |
+          python -c "import main; main.print_source_summary()"
 
       - name: Cache Sent Posts
         uses: actions/cache@v3
@@ -43,6 +45,13 @@ jobs:
           FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
           BITABLE_APP_TOKEN: ${{ secrets.BITABLE_APP_TOKEN }}
           BITABLE_TABLE_ID: ${{ secrets.BITABLE_TABLE_ID }}
+          RSS_ENTRY_LIMIT: "12"
+          SEARCH_RESULT_LIMIT: "8"
+          FETCH_POST_STATS: "0"
+          FETCH_COMMENTS: "0"
+          ENABLE_SEARCH_BROWSER: "0"
+          ENABLE_SEARCH_JSON_FALLBACK: "0"
+          REDDIT_429_COOLDOWN: "180"
         run: python main.py
 
       - name: Commit and Push to Repository

@@ -5,8 +5,9 @@ import json
 import hashlib
 import re
 import time
+import random
 from datetime import datetime
-from urllib.parse import urlparse
+from urllib.parse import urlparse, quote_plus
 from dotenv import load_dotenv
 from scraper import scrape_reddit_search
 
@@ -31,6 +32,17 @@ HOT_COMMENTS = int(os.environ.get("HOT_COMMENTS", 30))
 HOT_ENGAGEMENT = int(os.environ.get("HOT_ENGAGEMENT", 80))
 ACTIVE_COMMENTS = int(os.environ.get("ACTIVE_COMMENTS", 10))
 ACTIVE_ENGAGEMENT = int(os.environ.get("ACTIVE_ENGAGEMENT", 25))
+RSS_ENTRY_LIMIT = int(os.environ.get("RSS_ENTRY_LIMIT", 12))
+SEARCH_RESULT_LIMIT = int(os.environ.get("SEARCH_RESULT_LIMIT", 8))
+REDDIT_429_COOLDOWN = int(os.environ.get("REDDIT_429_COOLDOWN", 180))
+SOURCE_SLEEP_MIN = float(os.environ.get("SOURCE_SLEEP_MIN", 4))
+SOURCE_SLEEP_MAX = float(os.environ.get("SOURCE_SLEEP_MAX", 9))
+REQUEST_SLEEP_MIN = float(os.environ.get("REQUEST_SLEEP_MIN", 0.8))
+REQUEST_SLEEP_MAX = float(os.environ.get("REQUEST_SLEEP_MAX", 2.5))
+FETCH_POST_STATS = os.environ.get("FETCH_POST_STATS", "0") == "1"
+FETCH_COMMENTS = os.environ.get("FETCH_COMMENTS", "0") == "1"
+ENABLE_SEARCH_BROWSER = os.environ.get("ENABLE_SEARCH_BROWSER", "0") == "1"
+ENABLE_SEARCH_JSON_FALLBACK = os.environ.get("ENABLE_SEARCH_JSON_FALLBACK", "0") == "1"
 
 
 NEED_SOURCES = [
@@ -132,6 +144,39 @@ NEED_SOURCES = [
 ]
 
 DATA_FILE = "sent_posts.json"
+reddit_cooldown_until = 0
+
+def print_source_summary():
+    rss_count = sum(1 for source in NEED_SOURCES if source.get("type") == "rss")
+    search_count = sum(1 for source in NEED_SOURCES if source.get("type") == "search")
+    print(
+        "Loaded scan config: "
+        f"{rss_count} subreddits/RSS sources, {search_count} search keywords. "
+        f"Limits: RSS {RSS_ENTRY_LIMIT}/source, search {SEARCH_RESULT_LIMIT}/keyword. "
+        f"Post stats={'on' if FETCH_POST_STATS else 'off'}, comments={'on' if FETCH_COMMENTS else 'off'}, "
+        f"browser search={'on' if ENABLE_SEARCH_BROWSER else 'off'}."
+    )
+
+def polite_sleep(min_seconds=REQUEST_SLEEP_MIN, max_seconds=REQUEST_SLEEP_MAX):
+    if max_seconds <= 0:
+        return
+    time.sleep(random.uniform(max(0, min_seconds), max(min_seconds, max_seconds)))
+
+def reddit_get(url, headers, timeout=20, optional=False):
+    """Centralized Reddit request wrapper with a process-wide 429 cooldown."""
+    global reddit_cooldown_until
+    now = time.time()
+    if optional and now < reddit_cooldown_until:
+        remaining = int(reddit_cooldown_until - now)
+        print(f"    Optional Reddit request skipped during 429 cooldown ({remaining}s left).")
+        return None
+
+    polite_sleep()
+    resp = requests.get(url, headers=headers, timeout=timeout)
+    if resp.status_code == 429:
+        reddit_cooldown_until = time.time() + REDDIT_429_COOLDOWN
+        print(f"    Reddit HTTP 429. Optional Reddit requests paused for {REDDIT_429_COOLDOWN}s.")
+    return resp
 
 def load_sent_posts():
     if os.path.exists(DATA_FILE):
@@ -146,7 +191,7 @@ def save_sent_posts(sent_list):
 
 def get_post_id(entry):
     """Return a stable Reddit post id across RSS/search/www/old URL variants."""
-    link = entry.get('link', '') or ''
+    link = get_entry_link(entry)
     parsed = urlparse(link.split('?')[0])
     path_parts = [part for part in parsed.path.strip('/').split('/') if part]
 
@@ -157,6 +202,21 @@ def get_post_id(entry):
 
     raw_id = entry.get('id') or entry.get('guid') or link
     return hashlib.md5(str(raw_id).encode('utf-8')).hexdigest()
+
+def get_entry_title(entry):
+    if isinstance(entry, dict):
+        return entry.get("title", "Untitled")
+    return getattr(entry, "title", None) or entry.get("title", "Untitled")
+
+def get_entry_link(entry):
+    if isinstance(entry, dict):
+        return entry.get("link", "") or ""
+    return getattr(entry, "link", None) or entry.get("link", "") or ""
+
+def get_entry_summary(entry):
+    if isinstance(entry, dict):
+        return entry.get("summary") or entry.get("description") or ""
+    return entry.get("summary", entry.get("description", ""))
 
 def clean_html(raw_html):
     if not raw_html: return ""
@@ -173,9 +233,13 @@ def fetch_post_stats(link, headers):
     json_headers['Accept'] = 'application/json'
 
     try:
-        resp = requests.get(json_url, headers=json_headers, timeout=12)
+        resp = reddit_get(json_url, headers=json_headers, timeout=12, optional=True)
+        if resp is None:
+            return {}
         if resp.status_code == 403 and "www.reddit.com" in json_url:
-            resp = requests.get(json_url.replace("www.reddit.com", "old.reddit.com"), headers=json_headers, timeout=12)
+            resp = reddit_get(json_url.replace("www.reddit.com", "old.reddit.com"), headers=json_headers, timeout=12, optional=True)
+            if resp is None:
+                return {}
         if resp.status_code != 200:
             print(f"    Stats fetch skipped for HTTP {resp.status_code}")
             return {}
@@ -469,6 +533,7 @@ def send_to_bitable(title, link, source, translation, comments_summary, analysis
 
 def main():
     if not FEISHU_WEBHOOK_URL: return
+    print_source_summary()
     sent_posts = load_sent_posts()
     new_sent_list = list(sent_posts)
     seen_post_ids = set(sent_posts)
@@ -486,85 +551,78 @@ def main():
         
         try:
             if source_info.get('type') == 'rss':
-                resp = requests.get(source_info['url'], headers=headers, timeout=20)
+                resp = reddit_get(source_info['url'], headers=headers, timeout=20)
                 if resp.status_code == 200:
                     feed = feedparser.parse(resp.content)
-                    entries_to_process = feed.entries[:25] # 增加到 25 条
+                    entries_to_process = feed.entries[:RSS_ENTRY_LIMIT]
                 else:
                     print(f"  Warning: HTTP {resp.status_code} for {source_info['name']}")
                     if resp.status_code == 429:
-                        print("  Detected Rate Limiting (429). Waiting 30s...")
-                        time.sleep(30)
+                        print(f"  Detected Rate Limiting (429). Waiting {REDDIT_429_COOLDOWN}s before next source...")
+                        time.sleep(REDDIT_429_COOLDOWN)
             else:
-                # 使用真机爬虫
-                scraped = scrape_reddit_search(source_info['query'], time_range='month', limit=15) # 增加到 15 条
-                
-                # 🔄 Fallback 1: 如果真机爬虫失败，尝试简单的 JSON 接口
-                if not scraped:
-                    print(f"  Scraper blocked. Falling back to JSON API for {source_info['name']}...")
-                    try:
-                        # 使用更通用的 Bot User-Agent，Reddit 对此有时更宽容
-                        json_headers = headers.copy()
-                        json_headers['User-Agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
-                        
-                        search_url = f"https://www.reddit.com/search.json?q={source_info['query'].replace(' ', '%20')}&sort=relevance&t=month"
-                        s_resp = requests.get(search_url, headers=json_headers, timeout=15)
-                        
-                        # 如果主域 403，尝试 old.reddit.com
-                        if s_resp.status_code == 403:
-                            search_url = f"https://old.reddit.com/search.json?q={source_info['query'].replace(' ', '%20')}&sort=relevance&t=month"
-                            s_resp = requests.get(search_url, headers=headers, timeout=15)
+                scraped = []
+                query = quote_plus(source_info['query'])
 
-                        if s_resp.status_code == 200:
+                # Search RSS is lighter than browser scraping and JSON API, so use it first.
+                try:
+                    rss_url = f"https://www.reddit.com/search.rss?q={query}&sort=relevance&t=month"
+                    r_resp = reddit_get(rss_url, headers=headers, timeout=15)
+                    if r_resp.status_code == 200:
+                        f = feedparser.parse(r_resp.content)
+                        for entry in f.entries[:SEARCH_RESULT_LIMIT]:
+                            scraped.append({"title": entry.title, "link": entry.link, "entry": entry})
+                    else:
+                        print(f"  Search RSS failed (HTTP {r_resp.status_code}).")
+                except Exception as e:
+                    print(f"  Search RSS failed: {e}")
+
+                # Optional browser fallback. Disabled by default because it often triggers Reddit blocks in CI.
+                if not scraped and ENABLE_SEARCH_BROWSER:
+                    scraped = scrape_reddit_search(source_info['query'], time_range='month', limit=SEARCH_RESULT_LIMIT)
+                
+                # Optional JSON fallback. Disabled by default because GitHub Actions IPs frequently receive 403.
+                if not scraped and ENABLE_SEARCH_JSON_FALLBACK:
+                    print(f"  Falling back to JSON API for {source_info['name']}...")
+                    try:
+                        json_headers = headers.copy()
+                        
+                        search_url = f"https://www.reddit.com/search.json?q={query}&sort=relevance&t=month"
+                        s_resp = reddit_get(search_url, headers=json_headers, timeout=15, optional=True)
+                        
+                        if s_resp is not None and s_resp.status_code == 403:
+                            search_url = f"https://old.reddit.com/search.json?q={query}&sort=relevance&t=month"
+                            s_resp = reddit_get(search_url, headers=headers, timeout=15, optional=True)
+
+                        if s_resp is not None and s_resp.status_code == 200:
                             data = s_resp.json()
                             for child in data.get('data', {}).get('children', []):
                                 post = child.get('data', {})
                                 scraped.append({"title": post.get('title'), "link": f"https://www.reddit.com{post.get('permalink')}"})
-                        else:
-                            print(f"  JSON API also failed (HTTP {s_resp.status_code}).")
+                        elif s_resp is not None:
+                            print(f"  JSON API failed (HTTP {s_resp.status_code}).")
                     except Exception as e:
                         print(f"  JSON Fallback failed: {e}")
 
-                # 🔄 Fallback 2: 如果 JSON 也失败，尝试 Search RSS (最稳健)
-                if not scraped:
-                    print(f"  Falling back to RSS Search for {source_info['name']}...")
-                    try:
-                        # RSS 接口有时也需要特定的 User-Agent
-                        rss_headers = headers.copy()
-                        rss_headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) applewebkit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
-                        
-                        rss_url = f"https://www.reddit.com/search.rss?q={source_info['query'].replace(' ', '%20')}&sort=relevance&t=month"
-                        r_resp = requests.get(rss_url, headers=rss_headers, timeout=15)
-                        if r_resp.status_code == 200:
-                            f = feedparser.parse(r_resp.content)
-                            for entry in f.entries[:8]:
-                                scraped.append({"title": entry.title, "link": entry.link})
-                        else:
-                            print(f"  RSS Fallback failed (HTTP {r_resp.status_code}).")
-                    except Exception as e:
-                        print(f"  RSS Fallback failed: {e}")
-
-
                 # 转换成兼容的格式
                 for item in scraped:
-                    # 对于爬虫抓到的链接，我们需要去抓取它单贴的 RSS 以获取正文和评论
-                    try:
-                        post_rss_url = item['link'].rstrip('/') + ".rss"
-                        p_resp = requests.get(post_rss_url, headers=headers, timeout=10)
-                        if p_resp.status_code == 200:
-                            p_feed = feedparser.parse(p_resp.content)
-                            if p_feed.entries:
-                                # 第一个 entry 就是主贴
-                                entry = p_feed.entries[0]
-                                entries_to_process.append(entry)
-                    except: continue
+                    if item.get("entry"):
+                        entries_to_process.append(item["entry"])
+                        continue
+                    entries_to_process.append(item)
             
             print(f"  Processing {len(entries_to_process)} entries.")
             
             for entry in entries_to_process:
+                title = get_entry_title(entry)
+                link = get_entry_link(entry)
+                if not link:
+                    print(f"    Skipping entry without link: {title[:60]}")
+                    continue
+
                 post_id = get_post_id(entry)
                 if post_id not in seen_post_ids:
-                    post_stats = fetch_post_stats(entry.link, headers)
+                    post_stats = fetch_post_stats(link, headers) if FETCH_POST_STATS else {}
                     
                     # --- 🚀 前置热度过滤逻辑 ---
                     should_filter = False
@@ -586,50 +644,53 @@ def main():
                                 filter_reason = f"点赞数 {upvotes}，评论数 {comments}，讨论度 {engagement} < 门槛 (讨论度 {SEARCH_MIN_ENGAGEMENT})"
                     
                     if should_filter:
-                        print(f"    ⏩ [热度不足] 过滤帖子: \"{entry.title[:40]}...\"。原因: {filter_reason}。直接跳过，并记入已处理列表。")
+                        print(f"    ⏩ [热度不足] 过滤帖子: \"{title[:40]}...\"。原因: {filter_reason}。直接跳过，并记入已处理列表。")
                         new_sent_list.append(post_id)
                         seen_post_ids.add(post_id)
                         continue
                     # ----------------------------
 
-                    post_rss_url = entry.link.split('?')[0].rstrip('/') + ".rss"
                     full_content, comments = "", ""
                     stats_text = format_post_stats(post_stats)
-                    try:
-                        p_resp = requests.get(post_rss_url, headers=headers, timeout=15)
-                        if p_resp.status_code == 200:
-                            p_feed = feedparser.parse(p_resp.content)
-                            if p_feed.entries:
-                                main_post_entry = p_feed.entries[0]
-                                summary = main_post_entry.get('summary', '')
-                                content_list = main_post_entry.get('content', [])
-                                if summary:
-                                    full_content = clean_html(summary)
-                                elif content_list and len(content_list) > 0:
-                                    full_content = clean_html(content_list[0].get('value', ''))
-                                
-                                for c in p_feed.entries[1:6]:
-                                    body = clean_html(c.get('summary', ''))
-                                    if body: comments += f"- {body[:300]}\n"
-                        else:
-                            print(f"    Failed to fetch comments for {entry.title[:30]}, status: {p_resp.status_code}")
-                    except Exception as e:
-                        print(f"    Deep scan error: {e}")
-                    
-                    if not full_content:
-                        full_content = clean_html(entry.get('summary', entry.get('description', '')))
+                    full_content = clean_html(get_entry_summary(entry))
 
-                    print(f"  Analyzing: {entry.title} ({stats_text}, Content Len: {len(full_content)})")
-                    analysis_input = f"Title: {entry.title}\n{stats_text}\n{full_content}\nComments: {comments}"
-                    trans, comm, ans, score, cat, rs = analyze_needs(analysis_input, entry.title)
+                    if FETCH_COMMENTS:
+                        post_rss_url = link.split('?')[0].rstrip('/') + ".rss"
+                        try:
+                            p_resp = reddit_get(post_rss_url, headers=headers, timeout=15, optional=True)
+                            if p_resp is not None and p_resp.status_code == 200:
+                                p_feed = feedparser.parse(p_resp.content)
+                                if p_feed.entries:
+                                    main_post_entry = p_feed.entries[0]
+                                    summary = main_post_entry.get('summary', '')
+                                    content_list = main_post_entry.get('content', [])
+                                    if summary:
+                                        full_content = clean_html(summary)
+                                    elif content_list and len(content_list) > 0:
+                                        full_content = clean_html(content_list[0].get('value', ''))
+                                    
+                                    for c in p_feed.entries[1:6]:
+                                        body = clean_html(c.get('summary', ''))
+                                        if body: comments += f"- {body[:300]}\n"
+                            elif p_resp is not None:
+                                print(f"    Failed to fetch comments for {title[:30]}, status: {p_resp.status_code}")
+                        except Exception as e:
+                            print(f"    Deep scan error: {e}")
+
+                    if not full_content:
+                        full_content = clean_html(get_entry_summary(entry))
+
+                    print(f"  Analyzing: {title} ({stats_text}, Content Len: {len(full_content)})")
+                    analysis_input = f"Title: {title}\nLink: {link}\n{stats_text}\n{full_content}\nComments: {comments or 'Not fetched'}"
+                    trans, comm, ans, score, cat, rs = analyze_needs(analysis_input, title)
                     
                     # 仅在评分大于等于 55 时才推送，过滤无关或低质量贴子
                     if score >= 55:
                         print(f"    🚀 高分商机 ({score})，正在推送至飞书...")
-                        try: send_to_feishu(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs, post_stats)
+                        try: send_to_feishu(title, link, source_info['name'], trans, comm, ans, score, cat, rs, post_stats)
                         except Exception as e: print(f"    ⚠️ Feishu sync failed: {e}")
                         
-                        try: send_to_bitable(entry.title, entry.link, source_info['name'], trans, comm, ans, score, cat, rs, post_stats)
+                        try: send_to_bitable(title, link, source_info['name'], trans, comm, ans, score, cat, rs, post_stats)
                         except Exception as e: print(f"    ⚠️ Bitable sync failed: {e}")
                         # 个人帖子不写 Obsidian，只有汇总报告（由 analyzer.py 生成）才同步
                     else:
@@ -639,7 +700,7 @@ def main():
                     seen_post_ids.add(post_id)
             
             # 每处理完一个源休息一下，降低被封频次
-            time.sleep(2)
+            polite_sleep(SOURCE_SLEEP_MIN, SOURCE_SLEEP_MAX)
         except Exception as e: 
             print(f"  Error processing source {source_info['name']}: {e}")
     save_sent_posts(new_sent_list)
