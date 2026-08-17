@@ -2,8 +2,9 @@ name: Reddit Insight Analyzer
 
 on:
   schedule:
-    # 每天北京时间中午 12 点运行 (UTC 04:00)
-    - cron: '0 4 * * *'
+    # 每天北京时间中午 12:30 运行
+    - cron: '30 12 * * *'
+      timezone: 'Asia/Shanghai'
   workflow_dispatch:
 
 permissions:
