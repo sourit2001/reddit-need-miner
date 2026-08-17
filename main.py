@@ -74,6 +74,13 @@ NEED_SOURCES = [
     {"name": "r/LocalLLaMA (Hot)", "url": "https://www.reddit.com/r/LocalLLaMA/hot/.rss", "type": "rss"},
     {"name": "r/ecommerce (Hot)", "url": "https://www.reddit.com/r/ecommerce/hot/.rss", "type": "rss"},
 
+    # 图片编辑方向：覆盖具体操作、后期工作流、工具选择和商品图批处理痛点。
+    # 图片来源额外读取前几条评论，用于提取真实的工具使用、替代方案和返工原因。
+    {"name": "r/photoshop (Hot)", "url": "https://www.reddit.com/r/photoshop/hot/.rss", "type": "rss", "fetch_comments": True},
+    {"name": "r/postprocessing (Hot)", "url": "https://www.reddit.com/r/postprocessing/hot/.rss", "type": "rss", "fetch_comments": True},
+    {"name": "r/AskPhotography (Hot)", "url": "https://www.reddit.com/r/AskPhotography/hot/.rss", "type": "rss", "fetch_comments": True},
+    {"name": "r/productphotography (Hot)", "url": "https://www.reddit.com/r/productphotography/hot/.rss", "type": "rss", "fetch_comments": True},
+
     # 本地音频资料库方向：音乐、有声书、播客、课程录音、语音笔记、语言学习和自托管媒体。
     {"name": "r/musichoarder (Hot)", "url": "https://www.reddit.com/r/musichoarder/hot/.rss", "type": "rss"},
     {"name": "r/audiobooks (Hot)", "url": "https://www.reddit.com/r/audiobooks/hot/.rss", "type": "rss"},
@@ -82,7 +89,6 @@ NEED_SOURCES = [
     {"name": "r/DataHoarder (Hot)", "url": "https://www.reddit.com/r/DataHoarder/hot/.rss", "type": "rss"},
     {"name": "r/foobar2000 (Hot)", "url": "https://www.reddit.com/r/foobar2000/hot/.rss", "type": "rss"},
     {"name": "r/navidrome (Hot)", "url": "https://www.reddit.com/r/navidrome/hot/.rss", "type": "rss"},
-    {"name": "r/jellyfin (Hot)", "url": "https://www.reddit.com/r/jellyfin/hot/.rss", "type": "rss"},
     {"name": "r/ObsidianMD (Hot)", "url": "https://www.reddit.com/r/ObsidianMD/hot/.rss", "type": "rss"},
     {"name": "r/languagelearning (Hot)", "url": "https://www.reddit.com/r/languagelearning/hot/.rss", "type": "rss"},
     {"name": "r/headphones (Hot)", "url": "https://www.reddit.com/r/headphones/hot/.rss", "type": "rss"},
@@ -125,7 +131,15 @@ NEED_SOURCES = [
     {"name": "DevTools: Monitoring Alternative", "query": "Datadog alternative too expensive", "type": "search"},
     {"name": "DevTools: Webhook Debugging", "query": "webhook debugging tool", "type": "search"},
 
-    # 4. 本地音频播放器/资料库高意图搜索：不只音乐，也覆盖有声书、播客、录音、转写和语言学习。
+    # 4. 图片编辑高意图搜索：优先捕获耗时、批量、订阅、返工和工具切换证据。
+    {"name": "Images: Slow Workflow", "query": "photo editing workflow too slow", "type": "search", "fetch_comments": True},
+    {"name": "Images: Batch Editing", "query": "batch photo editing tool", "type": "search", "fetch_comments": True},
+    {"name": "Images: Subscription Alternative", "query": "photo editing software alternative subscription", "type": "search", "fetch_comments": True},
+    {"name": "Images: Retouch Automation", "query": "automate photo retouching", "type": "search", "fetch_comments": True},
+    {"name": "Images: Product Background", "query": "batch background removal product photos", "type": "search", "fetch_comments": True},
+    {"name": "Images: AI Workflow", "query": "AI photo editor workflow", "type": "search", "fetch_comments": True},
+
+    # 5. 本地音频播放器/资料库高意图搜索：不只音乐，也覆盖有声书、播客、录音、转写和语言学习。
     {"name": "Audio: Local Player", "query": "local audio player", "type": "search"},
     {"name": "Audio: Local Files Player", "query": "audio player local files", "type": "search"},
     {"name": "Audio: Library Management", "query": "audio library management", "type": "search"},
@@ -370,7 +384,7 @@ def analyze_needs(text, title, needs_translation=True):
                     "[分析]\n"
                     "1. 场景：谁在什么情况下遇到什么问题？\n"
                     "2. 方法：个人开发者可以做什么第一版？怎么帮用户少做哪一步？\n"
-                    "3. 当前工具评估：用户现在可能用什么工具/土办法？这些工具哪里不够好？\n"
+                    "3. 当前工具评估：分开写明原帖明确使用的工具、评论推荐的工具，以及各自的价格、复杂度、质量、批量限制和返工问题。没有证据就写“帖子里没有提到”，禁止猜测。\n"
                     "4. 可做性判断：为什么适合或不适合个人开发者做？\n"
                     "5. 一句话机会：用一句大白话说明这个产品机会。\n"
                     "[精选评论]\n内容\n"
@@ -689,7 +703,7 @@ def main():
                     stats_text = format_post_stats(post_stats)
                     full_content = clean_html(get_entry_summary(entry))
 
-                    if FETCH_COMMENTS:
+                    if FETCH_COMMENTS or source_info.get("fetch_comments", False):
                         post_rss_url = link.split('?')[0].rstrip('/') + ".rss"
                         try:
                             p_resp = reddit_get(post_rss_url, headers=headers, timeout=15, optional=True)
