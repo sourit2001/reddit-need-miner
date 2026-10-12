@@ -4,13 +4,14 @@ import json
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
+from llm_client import generate_text
 
 # 加载本地 .env 环境变量
 load_dotenv()
 
 # 从环境变量获取配置
 FEISHU_WEBHOOK_URL = os.environ.get("FEISHU_SUMMARY_WEBHOOK") or os.environ.get("FEISHU_WEBHOOK")
-AI_API_KEY = os.environ.get("AI_API_KEY")
+AI_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 FEISHU_APP_ID = os.environ.get("FEISHU_APP_ID")
 FEISHU_APP_SECRET = os.environ.get("FEISHU_APP_SECRET")
 BITABLE_APP_TOKEN = os.environ.get("BITABLE_APP_TOKEN")
@@ -78,13 +79,7 @@ def generate_report(records):
             f"| 内容摘要: {analysis[:300]}\n\n"
         )
 
-    url = "https://api.deepseek.com/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {AI_API_KEY}",
-        "Content-Type": "application/json"
-    }
     payload = {
-        "model": "deepseek-v4-flash",
         "messages": [
             {
                 "role": "system", 
@@ -107,13 +102,11 @@ def generate_report(records):
                 )
             },
             {"role": "user", "content": f"以下是最近的抓取记录：\n{summary_input}"}
-        ],
-        "temperature": 0.3
+        ]
     }
 
     try:
-        resp = requests.post(url, json=payload, headers=headers, timeout=60)
-        return resp.json()['choices'][0]['message']['content'].strip()
+        return generate_text(payload["messages"], api_key=AI_API_KEY, max_tokens=16384)
     except Exception as e:
         return f"生成汇总报表失败: {e}"
 

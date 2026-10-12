@@ -4,3 +4,5 @@ playwright
 feedparser
 requests
 beautifulsoup4
+
+anthropic>=0.75.0

@@ -9,6 +9,7 @@ import random
 from datetime import datetime
 from urllib.parse import urlparse, quote_plus
 from dotenv import load_dotenv
+from llm_client import generate_text
 from scraper import scrape_reddit_search
 
 # 加载本地 .env 环境变量
@@ -16,7 +17,7 @@ load_dotenv()
 
 # 环境配置
 FEISHU_WEBHOOK_URL = os.environ.get("FEISHU_WEBHOOK")
-AI_API_KEY = os.environ.get("AI_API_KEY")
+AI_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 FEISHU_APP_ID = os.environ.get("FEISHU_APP_ID")
 FEISHU_APP_SECRET = os.environ.get("FEISHU_APP_SECRET")
 BITABLE_APP_TOKEN = os.environ.get("BITABLE_APP_TOKEN")
@@ -345,14 +346,11 @@ def analyze_needs(text, title, needs_translation=True):
     if not text or len(text) < 10:
         text = f"Title: {title}\n(No content, analyze by title)"
     
-    url = "https://api.deepseek.com/chat/completions"
-    headers = {"Authorization": f"Bearer {AI_API_KEY}", "Content-Type": "application/json"}
     
     # 动态构建 Prompt，根据需要选择是否翻译
     translation_prompt = "[翻译]\n内容\n" if needs_translation else ""
     
     payload = {
-        "model": "deepseek-v4-flash",
         "messages": [
             {
                 "role": "system", 
@@ -395,18 +393,12 @@ def analyze_needs(text, title, needs_translation=True):
                 )
             },
             {"role": "user", "content": text[:4000]}
-        ],
-        "temperature": 0.4
+        ]
     }
     
     for attempt in range(2):
         try:
-            resp = requests.post(url, json=payload, headers=headers, timeout=60)
-            if resp.status_code != 200:
-                print(f"AI Attempt {attempt} HTTP {resp.status_code}: {resp.text[:500]}")
-                continue
-            res_json = resp.json()
-            full_content = res_json['choices'][0]['message']['content'].strip()
+            full_content = generate_text(payload["messages"], api_key=AI_API_KEY, max_tokens=4096)
 
             trans = extract_tagged_section("翻译", full_content) if needs_translation else "原文搬运"
             comm = extract_tagged_section("精选评论", full_content)

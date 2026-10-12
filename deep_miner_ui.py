@@ -41,7 +41,7 @@ has_keys = all([AI_API_KEY, FEISHU_APP_ID])
 if has_keys:
     st.sidebar.success("✅ API 密钥已就绪")
 else:
-    st.sidebar.error("❌ 缺少环境变量 (DeepSeek/Feishu)")
+    st.sidebar.error("❌ 缺少环境变量 (Anthropic/Feishu)")
     st.sidebar.warning("请确保终端已 export 相关 KEY 再运行 streamlit")
 
 # 主界面
